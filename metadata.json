@@ -1,0 +1,6 @@
+{
+  "name": "SIJAKA",
+  "description": "Sistem Informasi Jaminan Kematian Anggota berbasis Google Apps Script, Google Sheets, dan Fonnte WhatsApp API.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
