@@ -191,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {userRole === 'Admin' && (
               <a
-                href="https://docs.google.com/spreadsheets/d/1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c/edit?usp=sharing"
+                href="https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden md:flex items-center gap-2 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-500/30 transition-all shadow-sm hover:border-emerald-500/60"
@@ -241,33 +241,37 @@ export const Header: React.FC<HeaderProps> = ({
               <span>2. Simulator WA Bot</span>
             </button>
 
-            {userRole === 'Admin' && (
-              <>
-                <button
-                  onClick={() => setActiveTab('sheets')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
-                    activeTab === 'sheets'
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 border border-blue-400/20'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Table className={`w-4 h-4 ${activeTab === 'sheets' ? 'text-white' : 'text-purple-400'}`} />
-                  <span>3. Database Sheets</span>
-                </button>
+            <button
+              onClick={() => setActiveTab('sheets')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                activeTab === 'sheets'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 border border-blue-400/20'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
+              }`}
+              title={userRole === 'Admin' ? 'Database Sheets Simulator' : 'Khusus Admin / Pengurus'}
+            >
+              <Table className={`w-4 h-4 ${activeTab === 'sheets' ? 'text-white' : 'text-purple-400'}`} />
+              <span>3. Database Sheets</span>
+              {userRole !== 'Admin' && (
+                <Lock className="w-3 h-3 text-amber-400/80 ml-0.5" />
+              )}
+            </button>
 
-                <button
-                  onClick={() => setActiveTab('code')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
-                    activeTab === 'code'
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 border border-blue-400/20'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Code2 className={`w-4 h-4 ${activeTab === 'code' ? 'text-white' : 'text-amber-400'}`} />
-                  <span>4. Salin Code.gs & Index.html</span>
-                </button>
-              </>
-            )}
+            <button
+              onClick={() => setActiveTab('code')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                activeTab === 'code'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 border border-blue-400/20'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
+              }`}
+              title={userRole === 'Admin' ? 'Salin Kode Apps Script & Index.html' : 'Khusus Admin / Pengurus'}
+            >
+              <Code2 className={`w-4 h-4 ${activeTab === 'code' ? 'text-white' : 'text-amber-400'}`} />
+              <span>4. Salin Code.gs & Index.html</span>
+              {userRole !== 'Admin' && (
+                <Lock className="w-3 h-3 text-amber-400/80 ml-0.5" />
+              )}
+            </button>
           </nav>
         </div>
 

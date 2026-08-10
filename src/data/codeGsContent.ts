@@ -17,7 +17,7 @@ export const CODE_GS_CONTENT = `/**
  */
 
 // CONFIGURATION & CONSTANTS
-const SPREADSHEET_ID = '1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c'; // ID Google Spreadsheet Database SIJAKA Anda
+const SPREADSHEET_ID = '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E'; // ID Google Spreadsheet Database SIJAKA Anda
 const FONNTE_TOKEN = 'YOUR_FONNTE_TOKEN_HERE'; // Ganti dengan Token Fonnte WhatsApp API Anda
 
 // NOMOR WHATSAPP PENGURUS SIJAKA (Untuk WA Broadcast Notifikasi Kematian)

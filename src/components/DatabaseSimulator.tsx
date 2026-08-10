@@ -1,33 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { sijakaEngine } from '../services/sijakaEngine';
-import { Table, Database, RefreshCw, Plus, Download, FileSpreadsheet, ExternalLink, Lock, ShieldAlert } from 'lucide-react';
+import { Table, Database, RefreshCw, Plus, Download, FileSpreadsheet, ExternalLink, Lock, ShieldAlert, Key, AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import { maskNik, maskPhone } from '../utils/formatters';
 
 interface DatabaseSimulatorProps {
   userRole?: 'Admin' | 'Anggota';
+  onRequestAdminLogin?: () => void;
 }
 
-export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole = 'Anggota' }) => {
+export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole = 'Anggota', onRequestAdminLogin }) => {
   const [data, setData] = useState(sijakaEngine.getData());
   const [activeSheet, setActiveSheet] = useState<'Anggota' | 'Keluarga' | 'Kematian' | 'Iuran' | 'BukuKas' | 'Users' | 'Sessions' | 'Pelayanan' | 'Santunan'>('Anggota');
-  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c/edit?usp=sharing';
-  const spreadsheetId = '1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c';
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetSuccessToast, setResetSuccessToast] = useState(false);
+
+  const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing';
+  const spreadsheetId = '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E';
 
   const refreshData = () => {
     setData(sijakaEngine.getData());
   };
 
-  const handleReset = () => {
-    if (confirm('⚠️ Kosongkan seluruh data SIJAKA?\n\nSemua data dummy anggota, iuran, laporan kematian, dan kas akan dihapus bersih (reset ke 0) untuk memulai data dari nol.')) {
-      sijakaEngine.resetDatabase();
+  useEffect(() => {
+    const handleStorageUpdate = () => {
       refreshData();
-      alert('✅ Seluruh data SIJAKA berhasil dikosongkan. Aplikasi siap diisi data dari awal.');
-    }
+    };
+    window.addEventListener('sijaka_storage_update', handleStorageUpdate);
+    return () => window.removeEventListener('sijaka_storage_update', handleStorageUpdate);
+  }, []);
+
+  const handleExecuteReset = () => {
+    sijakaEngine.resetDatabase();
+    refreshData();
+    setShowResetModal(false);
+    setResetSuccessToast(true);
   };
 
   const formatRupiah = (num: number) => {
     return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
   };
+
+  // If user is Anggota, block access with a clear Admin Login requirement screen
+  if (userRole !== 'Admin') {
+    return (
+      <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-center space-y-6 p-8 relative">
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-600"></div>
+          
+          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto text-purple-600 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2 max-w-lg mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-800 text-xs font-bold">
+              <Lock className="w-3.5 h-3.5 text-purple-600" />
+              <span>Akses Terbatas • Khusus Admin / Pengurus</span>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+              Database Google Sheets SIJAKA
+            </h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Menu simulator tabel Google Sheets internal (<code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">Anggota</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">Iuran</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">BukuKas</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">Kematian</code>) serta opsi Reset Data khusus diakses oleh <strong>Admin / Pengurus SIJAKA</strong>.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={onRequestAdminLogin}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl font-extrabold text-xs transition-all shadow-lg shadow-purple-900/20 hover:scale-105 active:scale-95"
+            >
+              <Key className="w-4 h-4" />
+              <span>Login sebagai Admin / Pengurus</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
@@ -62,8 +111,8 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
               </a>
 
               <button
-                onClick={handleReset}
-                className="flex items-center gap-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-3 py-2 rounded-md text-xs font-semibold transition-colors"
+                onClick={() => setShowResetModal(true)}
+                className="flex items-center gap-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-3 py-2 rounded-md text-xs font-semibold transition-all hover:scale-105 active:scale-95 shadow-sm"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Kosongkan & Reset Data
               </button>
@@ -506,6 +555,73 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
         )}
 
       </div>
+
+      {/* Confirmation Modal for Resetting Database */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative space-y-5">
+            <button
+              onClick={() => setShowResetModal(false)}
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900 tracking-tight">Kosongkan & Reset Data SIJAKA?</h3>
+                <p className="text-xs text-slate-500">Konfirmasi tindakan Admin / Pengurus</p>
+              </div>
+            </div>
+
+            <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-xs text-rose-900 space-y-1.5 leading-relaxed">
+              <p className="font-bold">⚠️ Perhatian Data Baru SIJAKA:</p>
+              <p>Tindakan ini akan menghapus seluruh data demo anggota, keluarga, laporan kematian, iuran, dan kas lokal.</p>
+              <p className="text-[11px] text-rose-700">Aplikasi akan menjadi bersih (0 records) dan siap diisi data riil dari awal.</p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleExecuteReset}
+                className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition-all shadow-lg shadow-rose-600/30 flex items-center gap-1.5 hover:scale-105 active:scale-95"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Ya, Kosongkan Data Sekarang</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Toast Notification */}
+      {resetSuccessToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white border border-emerald-500/40 p-4 rounded-2xl shadow-2xl flex items-start gap-3 max-w-md animate-bounce-in">
+          <div className="w-9 h-9 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0 border border-emerald-500/30">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div className="flex-1 text-xs space-y-0.5">
+            <div className="font-bold text-emerald-300">Database Berhasil Dikosongkan!</div>
+            <p className="text-slate-300">Seluruh tabel SIJAKA telah dibersihkan. Aplikasi siap digunakan untuk menginput data baru.</p>
+          </div>
+          <button
+            onClick={() => setResetSuccessToast(false)}
+            className="text-slate-400 hover:text-white p-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
     </div>
   );

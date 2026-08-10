@@ -48,8 +48,8 @@ export default function App() {
       <main className="flex-1 pb-12">
         {activeTab === 'webApp' && <WebDashboard userRole={userRole} setUserRole={handleRoleChangeRequest} />}
         {activeTab === 'waBot' && <WaBotSimulator />}
-        {activeTab === 'sheets' && <DatabaseSimulator userRole={userRole} />}
-        {activeTab === 'code' && <CodeExporter />}
+        {activeTab === 'sheets' && <DatabaseSimulator userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
+        {activeTab === 'code' && <CodeExporter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
       </main>
 
       {/* Footer */}

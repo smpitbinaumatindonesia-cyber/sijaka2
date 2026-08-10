@@ -47,11 +47,9 @@ export const WaBotSimulator: React.FC = () => {
   };
 
   const handleClearHistory = () => {
-    if (confirm('Bersihkan riwayat simulasi chat & broadcast log?')) {
-      sijakaEngine.resetDatabase();
-      setChatHistory([...sijakaEngine.getChatHistory()]);
-      setBroadcastLogs([...sijakaEngine.getBroadcastLogs()]);
-    }
+    sijakaEngine.resetDatabase();
+    setChatHistory([...sijakaEngine.getChatHistory()]);
+    setBroadcastLogs([...sijakaEngine.getBroadcastLogs()]);
   };
 
   return (

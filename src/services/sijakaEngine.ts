@@ -26,8 +26,8 @@ const INITIAL_CONFIG: FonnteConfig = {
   nomorSekretaris: '085712345678',
   nomorOperasional: '088801234567',
   autoBroadcast: true,
-  spreadsheetId: '1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c',
-  spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c/edit?usp=sharing'
+  spreadsheetId: '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E',
+  spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing'
 };
 
 export class SijakaEngine {
@@ -63,6 +63,10 @@ export class SijakaEngine {
         this.pelayanan = parsed.pelayanan || [];
         this.santunan = parsed.santunan || [];
         this.config = parsed.config || INITIAL_CONFIG;
+        if (!this.config.spreadsheetId || this.config.spreadsheetId === '1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c') {
+          this.config.spreadsheetId = '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E';
+          this.config.spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing';
+        }
         this.chatHistory = parsed.chatHistory || [];
         this.broadcastLogs = parsed.broadcastLogs || [];
       } catch (e) {
@@ -112,6 +116,9 @@ export class SijakaEngine {
       broadcastLogs: this.broadcastLogs
     };
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('sijaka_storage_update'));
+    }
   }
 
   public resetDatabase() {

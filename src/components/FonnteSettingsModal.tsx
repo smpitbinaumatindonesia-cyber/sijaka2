@@ -41,9 +41,9 @@ export const FonnteSettingsModal: React.FC<FonnteSettingsModalProps> = ({ isOpen
             </label>
             <input
               type="text"
-              value={config.spreadsheetId || '1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c'}
+              value={config.spreadsheetId || '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E'}
               onChange={(e) => setConfig({ ...config, spreadsheetId: e.target.value })}
-              placeholder="1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c"
+              placeholder="1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E"
               className="w-full p-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-blue-500 font-mono text-xs"
               required
             />

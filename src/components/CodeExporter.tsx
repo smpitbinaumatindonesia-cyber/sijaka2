@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { CODE_GS_CONTENT } from '../data/codeGsContent';
 import { INDEX_HTML_CONTENT } from '../data/indexHtmlContent';
-import { Copy, Download, Check, FileCode, ExternalLink, HelpCircle, AlertCircle } from 'lucide-react';
+import { Copy, Download, Check, FileCode, ExternalLink, HelpCircle, AlertCircle, ShieldAlert, Lock, Key } from 'lucide-react';
 
-export const CodeExporter: React.FC = () => {
+interface CodeExporterProps {
+  userRole?: 'Admin' | 'Anggota';
+  onRequestAdminLogin?: () => void;
+}
+
+export const CodeExporter: React.FC<CodeExporterProps> = ({ userRole = 'Anggota', onRequestAdminLogin }) => {
   const [activeFile, setActiveFile] = useState<'Code.gs' | 'Index.html'>('Code.gs');
   const [copiedGs, setCopiedGs] = useState(false);
   const [copiedHtml, setCopiedHtml] = useState(false);
@@ -33,6 +38,61 @@ export const CodeExporter: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  // If user is Anggota, block access with a clear Admin Login requirement screen
+  if (userRole !== 'Admin') {
+    return (
+      <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-center space-y-6 p-8 relative">
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600"></div>
+          
+          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-600 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2 max-w-lg mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+              <Lock className="w-3.5 h-3.5 text-amber-600" />
+              <span>Akses Terbatas • Khusus Admin / Pengurus</span>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+              Kode Google Apps Script SIJAKA
+            </h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Menu ekspor source code backend <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">Code.gs</code> dan web app <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-800">Index.html</code> berisi konfigurasi webhook Fonnte WhatsApp & Spreadsheet ID internal. Untuk menjaga integritas sistem, menu ini khusus diakses oleh <strong>Admin / Pengurus SIJAKA</strong>.
+            </p>
+          </div>
+
+          {/* Quick Badges */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto text-left text-xs">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="font-bold text-slate-800 mb-0.5">⚡ Auto Configured</div>
+              <p className="text-[11px] text-slate-500">Mengkoneksikan Sheet ID ke Apps Script Web App</p>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="font-bold text-slate-800 mb-0.5">💬 WhatsApp Bot</div>
+              <p className="text-[11px] text-slate-500">Menerima Webhook Fonnte untuk autoreply AI</p>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="font-bold text-slate-800 mb-0.5">🔐 Keamanan Webhook</div>
+              <p className="text-[11px] text-slate-500">Dibatasi khusus otorisasi Pengurus</p>
+            </div>
+          </div>
+
+          {/* Action Login Button */}
+          <div className="pt-2">
+            <button
+              onClick={onRequestAdminLogin}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl font-extrabold text-xs transition-all shadow-lg shadow-amber-900/20 hover:scale-105 active:scale-95"
+            >
+              <Key className="w-4 h-4" />
+              <span>Login sebagai Admin / Pengurus</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
       
@@ -44,7 +104,7 @@ export const CodeExporter: React.FC = () => {
               <FileCode className="w-3.5 h-3.5" /> Ready for Deployment
             </span>
             <span className="text-xs text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-              Terhubung Sheet ID: 1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c
+              Terhubung Sheet ID: 1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E
             </span>
           </div>
           <h2 className="text-xl font-bold">Kode Lengkap SIJAKA (Google Apps Script)</h2>
@@ -55,7 +115,7 @@ export const CodeExporter: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <a
-            href="https://docs.google.com/spreadsheets/d/1b2bMaHY8TiuBtJQwCJgxRz3fzlJh6iakcgpDkhGvA_c/edit?usp=sharing"
+            href="https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-md text-xs font-semibold shadow-sm transition-colors"
