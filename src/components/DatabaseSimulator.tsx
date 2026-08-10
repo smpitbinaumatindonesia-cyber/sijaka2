@@ -18,9 +18,10 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
   };
 
   const handleReset = () => {
-    if (confirm('Reset seluruh data Google Sheets simulator ke data awal?')) {
+    if (confirm('⚠️ Kosongkan seluruh data SIJAKA?\n\nSemua data dummy anggota, iuran, laporan kematian, dan kas akan dihapus bersih (reset ke 0) untuk memulai data dari nol.')) {
       sijakaEngine.resetDatabase();
       refreshData();
+      alert('✅ Seluruh data SIJAKA berhasil dikosongkan. Aplikasi siap diisi data dari awal.');
     }
   };
 
@@ -62,9 +63,9 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
 
               <button
                 onClick={handleReset}
-                className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 px-3 py-2 rounded-md text-xs font-semibold transition-colors"
+                className="flex items-center gap-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/80 px-3 py-2 rounded-md text-xs font-semibold transition-colors"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> Reset Seed Data
+                <RefreshCw className="w-3.5 h-3.5" /> Kosongkan & Reset Data
               </button>
             </>
           )}

@@ -1,7 +1,7 @@
 import { Anggota, KeluargaMember, Kematian, Iuran, BukuKas, ChatMessage, FonnteConfig, BroadcastLog, UserAccount, UserSession, PelayananJenazah, SantunanKematian } from '../types';
 import { maskNik, maskPhone } from '../utils/formatters';
 
-const LOCAL_STORAGE_KEY = 'SIJAKA_DB_V1';
+const LOCAL_STORAGE_KEY = 'SIJAKA_DB_V2';
 
 const INITIAL_USERS: UserAccount[] = [
   { id_user: 'U001', username: 'admin', password: 'admin123', role: 'Admin' },
@@ -10,51 +10,14 @@ const INITIAL_USERS: UserAccount[] = [
   { id_user: 'Bend2', username: 'Dino', password: 'Dino123', role: 'Admin' },
 ];
 
-const INITIAL_SESSIONS: UserSession[] = [
-  { session_id: 'SES-001', username: 'admin', last_login: '2026-08-09 18:40:00' },
-  { session_id: 'SES-002', username: 'Wardjo', last_login: '2026-08-09 08:15:00' }
-];
-
-const INITIAL_PELAYANAN: PelayananJenazah[] = [
-  { ID_Laporan: 'LPK-001', Petugas: 'Dedi Kurniawan & Tim Operasional', Dimandikan: 'Sudah', Dikafani: 'Sudah', Disalatkan: 'Sudah', Dimakamkan: 'Sudah' }
-];
-
-const INITIAL_SANTUNAN: SantunanKematian[] = [
-  { ID_Laporan: 'LPK-001', Tgl_Pencairan: '2026-08-05', Nama_Penerima: 'Dewi Lestari (Ahli Waris ANG-001)', Nominal_Santunan: 2500000 }
-];
-
-const INITIAL_KELUARGA: KeluargaMember[] = [
-  { id: 'KLG-001', id_anggota: 'ANG-001', nik: '3201015504870001', nama: 'Dewi Lestari', hubungan: 'Istri', status: 'Hidup' },
-  { id: 'KLG-002', id_anggota: 'ANG-001', nik: '3201011210120002', nama: 'Rizky Santoso', hubungan: 'Anak', status: 'Hidup' },
-  { id: 'KLG-003', id_anggota: 'ANG-002', nik: '3201010101650003', nama: 'Bambang Raharjo', hubungan: 'Suami', status: 'Hidup' },
-  { id: 'KLG-004', id_anggota: 'ANG-003', nik: '3201011802950004', nama: 'Nurlaila Hidayat', hubungan: 'Istri', status: 'Hidup' },
-  { id: 'KLG-005', id_anggota: 'ANG-004', nik: '3201012512920005', nama: 'Anisa Kurniawan', hubungan: 'Istri', status: 'Hidup' }
-];
-
-const INITIAL_ANGGOTA: Anggota[] = [
-  { id: 'ANG-001', nik: '3201012304850001', nama: 'Budi Santoso', alamat: 'Jl. Merdeka No. 12, RT 01/02', no_hp: '081234567891', status: 'Aktif' },
-  { id: 'ANG-002', nik: '3201011508790002', nama: 'Siti Rahmawati', alamat: 'Jl. Mawar No. 05, RT 03/02', no_hp: '085712345672', status: 'Aktif' },
-  { id: 'ANG-003', nik: '3201012211900003', nama: 'Ahmad Hidayat', alamat: 'Jl. Melati No. 88, RT 02/01', no_hp: '088899900011', status: 'Aktif' },
-  { id: 'ANG-004', nik: '3201010901880004', nama: 'Dedi Kurniawan', alamat: 'Jl. Kenanga No. 15, RT 04/03', no_hp: '081345678900', status: 'Aktif' },
-];
-
-const INITIAL_KEMATIAN: Kematian[] = [
-  { id_laporan: 'LPK-001', tanggal_lapor: '2026-08-01', id_anggota: 'ANG-001', waktu_kematian: '2026-08-01 04:30', tempat: 'RS Daerah Citra', status: 'Selesai', catatan: 'Santunan Rp 2.500.000 telah diserahkan ke Ahli Waris' }
-];
-
-const INITIAL_IURAN: Iuran[] = [
-  { id_iuran: 'IRN-001', tanggal: '2026-08-01', id_anggota: 'ANG-001', bulan_tahun: 'Agustus 2026', nominal: 50000, keterangan: 'Iuran Rutin Bulanan' },
-  { id_iuran: 'IRN-002', tanggal: '2026-08-02', id_anggota: 'ANG-002', bulan_tahun: 'Agustus 2026', nominal: 50000, keterangan: 'Iuran Rutin Bulanan' },
-  { id_iuran: 'IRN-003', tanggal: '2026-08-03', id_anggota: 'ANG-003', bulan_tahun: 'Agustus 2026', nominal: 50000, keterangan: 'Iuran Rutin Bulanan' },
-];
-
-const INITIAL_BUKUKAS: BukuKas[] = [
-  { id_kas: 'KAS-001', tanggal: '2026-08-01', tipe: 'Masuk', nominal: 10000000, keterangan: 'Saldo Kas Awal SIJAKA' },
-  { id_kas: 'KAS-002', tanggal: '2026-08-01', tipe: 'Masuk', nominal: 50000, keterangan: 'Iuran ANG-001 - Agustus 2026' },
-  { id_kas: 'KAS-003', tanggal: '2026-08-02', tipe: 'Masuk', nominal: 50000, keterangan: 'Iuran ANG-002 - Agustus 2026' },
-  { id_kas: 'KAS-004', tanggal: '2026-08-03', tipe: 'Masuk', nominal: 50000, keterangan: 'Iuran ANG-003 - Agustus 2026' },
-  { id_kas: 'KAS-005', tanggal: '2026-08-05', tipe: 'Keluar', nominal: 2500000, keterangan: 'Santunan Kematian ANG-001 (LPK-001)' },
-];
+const INITIAL_SESSIONS: UserSession[] = [];
+const INITIAL_PELAYANAN: PelayananJenazah[] = [];
+const INITIAL_SANTUNAN: SantunanKematian[] = [];
+const INITIAL_KELUARGA: KeluargaMember[] = [];
+const INITIAL_ANGGOTA: Anggota[] = [];
+const INITIAL_KEMATIAN: Kematian[] = [];
+const INITIAL_IURAN: Iuran[] = [];
+const INITIAL_BUKUKAS: BukuKas[] = [];
 
 const INITIAL_CONFIG: FonnteConfig = {
   fonnteToken: 'FONNTE_DEMO_TOKEN_998811',
@@ -82,46 +45,50 @@ export class SijakaEngine {
   private broadcastLogs: BroadcastLog[];
 
   constructor() {
+    try {
+      localStorage.removeItem('SIJAKA_DB_V1');
+    } catch (e) {}
+
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        this.anggota = parsed.anggota || INITIAL_ANGGOTA;
-        this.keluarga = parsed.keluarga || INITIAL_KELUARGA;
-        this.kematian = parsed.kematian || INITIAL_KEMATIAN;
-        this.iuran = parsed.iuran || INITIAL_IURAN;
-        this.bukukas = parsed.bukukas || INITIAL_BUKUKAS;
+        this.anggota = parsed.anggota || [];
+        this.keluarga = parsed.keluarga || [];
+        this.kematian = parsed.kematian || [];
+        this.iuran = parsed.iuran || [];
+        this.bukukas = parsed.bukukas || [];
         this.users = parsed.users || INITIAL_USERS;
-        this.sessions = parsed.sessions || INITIAL_SESSIONS;
-        this.pelayanan = parsed.pelayanan || INITIAL_PELAYANAN;
-        this.santunan = parsed.santunan || INITIAL_SANTUNAN;
+        this.sessions = parsed.sessions || [];
+        this.pelayanan = parsed.pelayanan || [];
+        this.santunan = parsed.santunan || [];
         this.config = parsed.config || INITIAL_CONFIG;
         this.chatHistory = parsed.chatHistory || [];
         this.broadcastLogs = parsed.broadcastLogs || [];
       } catch (e) {
-        this.anggota = [...INITIAL_ANGGOTA];
-        this.keluarga = [...INITIAL_KELUARGA];
-        this.kematian = [...INITIAL_KEMATIAN];
-        this.iuran = [...INITIAL_IURAN];
-        this.bukukas = [...INITIAL_BUKUKAS];
+        this.anggota = [];
+        this.keluarga = [];
+        this.kematian = [];
+        this.iuran = [];
+        this.bukukas = [];
         this.users = [...INITIAL_USERS];
-        this.sessions = [...INITIAL_SESSIONS];
-        this.pelayanan = [...INITIAL_PELAYANAN];
-        this.santunan = [...INITIAL_SANTUNAN];
+        this.sessions = [];
+        this.pelayanan = [];
+        this.santunan = [];
         this.config = { ...INITIAL_CONFIG };
         this.chatHistory = [];
         this.broadcastLogs = [];
       }
     } else {
-      this.anggota = [...INITIAL_ANGGOTA];
-      this.keluarga = [...INITIAL_KELUARGA];
-      this.kematian = [...INITIAL_KEMATIAN];
-      this.iuran = [...INITIAL_IURAN];
-      this.bukukas = [...INITIAL_BUKUKAS];
+      this.anggota = [];
+      this.keluarga = [];
+      this.kematian = [];
+      this.iuran = [];
+      this.bukukas = [];
       this.users = [...INITIAL_USERS];
-      this.sessions = [...INITIAL_SESSIONS];
-      this.pelayanan = [...INITIAL_PELAYANAN];
-      this.santunan = [...INITIAL_SANTUNAN];
+      this.sessions = [];
+      this.pelayanan = [];
+      this.santunan = [];
       this.config = { ...INITIAL_CONFIG };
       this.chatHistory = [];
       this.broadcastLogs = [];
@@ -148,15 +115,15 @@ export class SijakaEngine {
   }
 
   public resetDatabase() {
-    this.anggota = [...INITIAL_ANGGOTA];
-    this.keluarga = [...INITIAL_KELUARGA];
-    this.kematian = [...INITIAL_KEMATIAN];
-    this.iuran = [...INITIAL_IURAN];
-    this.bukukas = [...INITIAL_BUKUKAS];
+    this.anggota = [];
+    this.keluarga = [];
+    this.kematian = [];
+    this.iuran = [];
+    this.bukukas = [];
     this.users = [...INITIAL_USERS];
-    this.sessions = [...INITIAL_SESSIONS];
-    this.pelayanan = [...INITIAL_PELAYANAN];
-    this.santunan = [...INITIAL_SANTUNAN];
+    this.sessions = [];
+    this.pelayanan = [];
+    this.santunan = [];
     this.config = { ...INITIAL_CONFIG };
     this.chatHistory = [];
     this.broadcastLogs = [];
