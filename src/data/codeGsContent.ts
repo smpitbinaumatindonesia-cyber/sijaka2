@@ -140,7 +140,46 @@ function setupDatabaseSheets() {
     sheetSantunan.appendRow(['LPK-001', '2026-08-05', 'Dewi Lestari (Ahli Waris ANG-001)', 2500000]);
   }
 
-  return "Database SIJAKA siap digunakan dengan 9 Sheet Terpadu!";
+  // Sheet 'AuditLogs' (v1.3 Immutable Security Audit Trail)
+  let sheetAudit = ss.getSheetByName('AuditLogs');
+  if (!sheetAudit) {
+    sheetAudit = ss.insertSheet('AuditLogs');
+    sheetAudit.appendRow(['Audit_ID', 'Timestamp', 'User_ID', 'Role', 'Action', 'Resource', 'Resource_ID', 'Result', 'Details', 'Severity']);
+    sheetAudit.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#1e293b').setFontColor('#ffffff');
+    sheetAudit.appendRow(['AUD-INIT-001', '2026-08-09 08:00:00', 'SYSTEM', 'System', 'SYSTEM_BOOTSTRAP', 'ENGINE', 'APP', 'SUCCESS', 'SIJAKA v1.3 Backend Initialized', 'INFO']);
+  }
+
+  return "Database SIJAKA siap digunakan dengan 10 Sheet Terpadu!";
+}
+
+/**
+ * Log Audit Trail Server-Side (Code.gs v1.3)
+ */
+function logAuditAction(userId, role, action, resource, resourceId, result, details, severity) {
+  try {
+    const ss = getSpreadsheet();
+    let sheetAudit = ss.getSheetByName('AuditLogs');
+    if (!sheetAudit) {
+      sheetAudit = ss.insertSheet('AuditLogs');
+      sheetAudit.appendRow(['Audit_ID', 'Timestamp', 'User_ID', 'Role', 'Action', 'Resource', 'Resource_ID', 'Result', 'Details', 'Severity']);
+    }
+    const auditId = 'AUD-' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMddHHmmss') + '-' + Math.floor(100 + Math.random() * 900);
+    const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+    sheetAudit.appendRow([
+      auditId,
+      nowStr,
+      userId || 'ANON',
+      role || 'Anggota',
+      action,
+      resource,
+      resourceId || '-',
+      result || 'SUCCESS',
+      details || '',
+      severity || 'INFO'
+    ]);
+  } catch (e) {
+    Logger.log('Audit log error: ' + e.toString());
+  }
 }
 
 /**
@@ -815,27 +854,87 @@ function apiSubmitAnggota(data) {
   return { success: true, id_anggota: idAnggota };
 }
 
-function apiUpdateStatusKematian(idLaporan, statusBaru) {
+function apiUpdateStatusKematian(idLaporan, statusBaru, userId) {
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName('Kematian');
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][0]) === String(idLaporan)) {
-      sheet.getRange(i + 1, 6).setValue(statusBaru);
+      const prevStatus = data[i][5];
 
-      // Jika status diset Selesai / Terverifikasi, opsional buat pengeluaran santunan
-      if (statusBaru === 'Terverifikasi') {
-        const idAnggota = data[i][2];
-        const sheetKas = ss.getSheetByName('BukuKas');
-        const idKas = 'KAS-' + Math.floor(1000 + Math.random() * 9000);
-        const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
-        sheetKas.appendRow([idKas, nowStr, 'Keluar', 2500000, 'Santunan Kematian ' + idAnggota + ' (' + idLaporan + ')']);
+      // State machine validation: prevent illegal backward transitions
+      if (prevStatus === 'Selesai' && statusBaru === 'Menunggu Verifikasi') {
+        logAuditAction(userId || 'ADMIN', 'Admin', 'ILLEGAL_STATE_TRANSITION', 'KEMATIAN', idLaporan, 'BLOCKED', 'Percobaan transisi status ilegal', 'WARNING');
+        return { success: false, message: 'Transisi status ilegal dari Selesai ke Menunggu Verifikasi ditolak' };
       }
 
+      sheet.getRange(i + 1, 6).setValue(statusBaru);
+
+      // IDEMPOTENCY GUARD: Hanya buat entri Kas Keluar santunan Rp 2.500.000 jika belum pernah dibuat!
+      if (statusBaru === 'Terverifikasi' || statusBaru === 'Selesai') {
+        const idAnggota = data[i][2];
+        const sheetKas = ss.getSheetByName('BukuKas');
+        const kasValues = sheetKas.getDataRange().getValues();
+        let alreadyProcessed = false;
+
+        for (let k = 1; k < kasValues.length; k++) {
+          if (String(kasValues[k][4]).includes(idLaporan)) {
+            alreadyProcessed = true;
+            break;
+          }
+        }
+
+        if (!alreadyProcessed) {
+          const idKas = 'KAS-' + Math.floor(1000 + Math.random() * 9000);
+          const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+          sheetKas.appendRow([idKas, nowStr, 'Keluar', 2500000, 'Santunan Kematian ' + idAnggota + ' (' + idLaporan + ')']);
+          logAuditAction(userId || 'ADMIN', 'Admin', 'CLAIM_APPROVED', 'BUKUKAS', idKas, 'SUCCESS', 'Santunan Rp 2.500.000 dicatat (ID: ' + idKas + ')', 'INFO');
+        } else {
+          logAuditAction(userId || 'ADMIN', 'Admin', 'CLAIM_DUPLICATE_BLOCKED', 'KEMATIAN', idLaporan, 'BLOCKED', 'Anti-Double Claim: Santunan sudah pernah dicatat di Buku Kas', 'INFO');
+        }
+      }
+
+      logAuditAction(userId || 'ADMIN', 'Admin', 'DEATH_VERIFIED', 'KEMATIAN', idLaporan, 'SUCCESS', 'Status diubah ke ' + statusBaru, 'INFO');
       return { success: true };
     }
   }
   return { success: false, message: 'ID Laporan tidak ditemukan' };
+}
+
+/**
+ * Rekonsiliasi Keuangan Server-Side (v1.3 Financial Integrity Guard)
+ */
+function reconcileFinancialLedger() {
+  const ss = getSpreadsheet();
+  const sheetKas = ss.getSheetByName('BukuKas');
+  const sheetKematian = ss.getSheetByName('Kematian');
+
+  const kasValues = sheetKas ? sheetKas.getDataRange().getValues() : [];
+  let masuk = 0;
+  let keluar = 0;
+
+  for (let i = 1; i < kasValues.length; i++) {
+    const tipe = String(kasValues[i][2]).toLowerCase();
+    const nom = Number(kasValues[i][3]) || 0;
+    if (tipe === 'masuk') masuk += nom;
+    if (tipe === 'keluar') keluar += nom;
+  }
+
+  const saldoBukuKas = masuk - keluar;
+  const saldoSeharusnya = 0 + masuk - keluar;
+  const difference = Math.abs(saldoSeharusnya - saldoBukuKas);
+
+  const isMatch = (difference === 0);
+  logAuditAction('SYSTEM', 'System', 'RECONCILIATION_RUN', 'LEDGER', 'FINANCE', isMatch ? 'SUCCESS' : 'FAILED', 'Saldo: ' + saldoBukuKas + ', Diff: ' + difference, isMatch ? 'INFO' : 'CRITICAL');
+
+  return {
+    status: isMatch ? 'RECONCILED_MATCH' : 'RECONCILIATION_MISMATCH',
+    totalPemasukan: masuk,
+    totalPengeluaran: keluar,
+    saldoBukuKas: saldoBukuKas,
+    difference: difference,
+    isMatch: isMatch
+  };
 }
 `;

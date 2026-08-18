@@ -2,13 +2,103 @@ export interface UserAccount {
   id_user: string;
   username: string;
   password?: string;
-  role: string;
+  role: 'Admin' | 'Anggota';
 }
 
 export interface UserSession {
   session_id: string;
+  user_id?: string;
   username: string;
-  last_login: string;
+  role?: 'Admin' | 'Anggota';
+  created_at?: string;
+  expires_at?: string;
+  status?: 'ACTIVE' | 'REVOKED' | 'EXPIRED';
+  last_login?: string;
+  last_activity?: string;
+  revoked_at?: string;
+}
+
+export type GranularPermission =
+  | 'AUTH_READ_SELF'
+  | 'LETTER_CREATE'
+  | 'DEATH_REPORT_CREATE'
+  | 'DEATH_REPORT_READ_SELF'
+  | 'MEMBER_READ_ALL'
+  | 'MEMBER_WRITE'
+  | 'FAMILY_READ_ALL'
+  | 'FAMILY_WRITE'
+  | 'DEATH_VERIFY'
+  | 'DEATH_APPROVE'
+  | 'CLAIM_CREATE'
+  | 'CLAIM_APPROVE'
+  | 'PAYMENT_CREATE'
+  | 'CASH_READ'
+  | 'CASH_WRITE'
+  | 'AUDIT_READ'
+  | 'BACKUP_CREATE'
+  | 'BACKUP_RESTORE'
+  | 'CONFIG_READ'
+  | 'CONFIG_WRITE'
+  | 'DATABASE_RESET'
+  | 'RECONCILIATION_RUN';
+
+export interface AuditLogEntry {
+  auditId: string;
+  timestamp: string;
+  userId: string;
+  role: 'Admin' | 'Anggota' | 'System';
+  action: string;
+  resource: string;
+  resourceId?: string;
+  requestId: string;
+  result: 'SUCCESS' | 'BLOCKED' | 'FAILED' | 'WARNING';
+  details: string;
+  severity: 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
+}
+
+export interface BackupRecord {
+  backupId: string;
+  timestamp: string;
+  type: 'MANUAL_ADMIN' | 'AUTO_PRE_RESET' | 'AUTO_PRE_RESTORE' | 'DAILY_SCHEDULED';
+  recordCounts: {
+    anggota: number;
+    keluarga: number;
+    kematian: number;
+    iuran: number;
+    bukukas: number;
+    santunan: number;
+    pelayanan: number;
+  };
+  checksum: string;
+  status: 'VERIFIED' | 'FAILED';
+  createdBy: string;
+  payloadJson: string;
+}
+
+export interface ReconciliationResult {
+  timestamp: string;
+  saldoAwal: number;
+  totalPemasukan: number;
+  totalPengeluaran: number;
+  saldoSeharusnya: number;
+  saldoBukuKas: number;
+  difference: number;
+  status: 'RECONCILED_MATCH' | 'RECONCILIATION_MISMATCH';
+  severity: 'HEALTHY' | 'CRITICAL';
+  claimsVerifiedCount: number;
+  claimsTotalNominal: number;
+  unmatchedClaims: string[];
+  unmatchedIuran: string[];
+  notes: string;
+}
+
+export interface SecurityTestResult {
+  id: string;
+  category: 'AUTH' | 'RBAC' | 'IDOR' | 'IDEMPOTENCY' | 'FINANCE' | 'WEBHOOK' | 'PRIVACY' | 'BACKUP';
+  title: string;
+  description: string;
+  status: 'PASSED' | 'FAILED' | 'BLOCKED' | 'NOT_VERIFIED';
+  detail: string;
 }
 
 export interface PelayananJenazah {

@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 
 interface HeaderProps {
-  activeTab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'settings';
-  setActiveTab: (tab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'settings') => void;
+  activeTab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings';
+  setActiveTab: (tab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings') => void;
   onOpenSettings: () => void;
   userRole?: 'Admin' | 'Anggota';
   setUserRole?: (role: 'Admin' | 'Anggota') => void;
@@ -271,6 +271,19 @@ export const Header: React.FC<HeaderProps> = ({
               {userRole !== 'Admin' && (
                 <Lock className="w-3 h-3 text-amber-400/80 ml-0.5" />
               )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('security')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
+                activeTab === 'security'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-600/30 border border-blue-400/20'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
+              }`}
+              title="Pusat Kendali Keamanan, Rekonsiliasi Kas, Audit Trail & Disaster Recovery"
+            >
+              <ShieldCheck className={`w-4 h-4 ${activeTab === 'security' ? 'text-white' : 'text-teal-400'}`} />
+              <span>5. Security & Control Center</span>
             </button>
           </nav>
         </div>

@@ -4,11 +4,12 @@ import { WebDashboard } from './components/WebDashboard';
 import { WaBotSimulator } from './components/WaBotSimulator';
 import { DatabaseSimulator } from './components/DatabaseSimulator';
 import { CodeExporter } from './components/CodeExporter';
+import { SecurityControlCenter } from './components/SecurityControlCenter';
 import { FonnteSettingsModal } from './components/FonnteSettingsModal';
 import { AdminLoginModal, AdminAccount } from './components/AdminLoginModal';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'webApp' | 'waBot' | 'sheets' | 'code' | 'settings'>('webApp');
+  const [activeTab, setActiveTab] = useState<'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings'>('webApp');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [userRole, setUserRole] = useState<'Admin' | 'Anggota'>('Anggota');
@@ -50,6 +51,7 @@ export default function App() {
         {activeTab === 'waBot' && <WaBotSimulator />}
         {activeTab === 'sheets' && <DatabaseSimulator userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
         {activeTab === 'code' && <CodeExporter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
+        {activeTab === 'security' && <SecurityControlCenter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
       </main>
 
       {/* Footer */}
