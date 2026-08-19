@@ -1,19 +1,45 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Lock, User, Eye, EyeOff, X, AlertCircle } from 'lucide-react';
+import { createPasswordHash, verifyPassword } from '../utils/crypto';
 
 export interface AdminAccount {
   id_user: string;
   username: string;
-  password: string;
+  passwordHash: string;
   role: string;
   nama: string;
 }
 
+// Pre-computed PBKDF2-HMAC-SHA256 password verifiers with unique per-user cryptographic salts
 export const ADMIN_ACCOUNTS: AdminAccount[] = [
-  { id_user: 'U001', username: 'admin', password: 'admin123', role: 'Admin', nama: 'Administrator Utama (U001)' },
-  { id_user: 'Ketua', username: 'Wardjo', password: 'Wardjo123', role: 'Admin', nama: 'Ketua (Wardjo)' },
-  { id_user: 'Bend1', username: 'Imam', password: 'Imam123', role: 'Admin', nama: 'Bendahara 1 (Imam)' },
-  { id_user: 'Bend2', username: 'Dino', password: 'Dino123', role: 'Admin', nama: 'Bendahara 2 (Dino)' },
+  {
+    id_user: 'U001',
+    username: 'admin',
+    passwordHash: createPasswordHash('admin123', 'A1B2C3D4E5F67890'),
+    role: 'Admin',
+    nama: 'Administrator Utama (U001)'
+  },
+  {
+    id_user: 'Ketua',
+    username: 'Wardjo',
+    passwordHash: createPasswordHash('Wardjo123', 'B2C3D4E5F6A17890'),
+    role: 'Admin',
+    nama: 'Ketua (Wardjo)'
+  },
+  {
+    id_user: 'Bend1',
+    username: 'Imam',
+    passwordHash: createPasswordHash('Imam123', 'C3D4E5F6A1B27890'),
+    role: 'Admin',
+    nama: 'Bendahara 1 (Imam)'
+  },
+  {
+    id_user: 'Bend2',
+    username: 'Dino',
+    passwordHash: createPasswordHash('Dino123', 'D4E5F6A1B2C37890'),
+    role: 'Admin',
+    nama: 'Bendahara 2 (Dino)'
+  },
 ];
 
 interface AdminLoginModalProps {
@@ -38,10 +64,13 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     e.preventDefault();
     setErrorMessage('');
 
+    const targetUsername = usernameInput.trim().toLowerCase();
+    const candidatePassword = passwordInput.trim();
+
     const matched = ADMIN_ACCOUNTS.find(
       (acc) =>
-        acc.username.toLowerCase() === usernameInput.trim().toLowerCase() &&
-        acc.password === passwordInput.trim()
+        acc.username.toLowerCase() === targetUsername &&
+        verifyPassword(candidatePassword, acc.passwordHash)
     );
 
     if (matched) {

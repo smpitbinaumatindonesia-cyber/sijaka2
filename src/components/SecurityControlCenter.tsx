@@ -219,7 +219,7 @@ export const SecurityControlCenter: React.FC<SecurityControlCenterProps> = ({
             }`}
           >
             <Scale className="w-4 h-4" />
-            Financial Reconciliation
+            Cash Ledger Reconciliation
           </button>
 
           <button
@@ -231,7 +231,7 @@ export const SecurityControlCenter: React.FC<SecurityControlCenterProps> = ({
             }`}
           >
             <History className="w-4 h-4" />
-            Immutable Audit Trail ({auditLogs.length})
+            Audit Trail ({auditLogs.length})
           </button>
 
           <button
@@ -361,10 +361,10 @@ export const SecurityControlCenter: React.FC<SecurityControlCenterProps> = ({
               <div>
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Scale className="w-5 h-5 text-blue-600" />
-                  Financial Ledger & Death Claim Reconciliation
+                  Single-Entry Cash Ledger & Death Claim Reconciliation
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Pencocokan saldo matematis (Formula: Saldo Awal + Kas Masuk - Kas Keluar = Saldo Akhir) dan validasi rasio santunan kematian.
+                  Rekonsiliasi arus kas masuk/keluar (Formula: Saldo Awal + Kas Masuk - Kas Keluar = Saldo Akhir) dan validasi rasio santunan kematian.
                 </p>
               </div>
               <button
@@ -447,10 +447,16 @@ export const SecurityControlCenter: React.FC<SecurityControlCenterProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* SUBTAB 3: IMMUTABLE AUDIT TRAIL */}
+      {/* SUBTAB 3: AUDIT TRAIL */}
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'audit' && (
         <div className="space-y-4">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-center justify-between">
+            <span className="font-medium">
+              ℹ️ <strong>Authoritative Audit Notice:</strong> Log mutasi permanen dicatat di Google Spreadsheet Sheet <code>AuditLogs</code> (Append-Only). Tampilan berikut memuat ringkasan audit terverifikasi.
+            </span>
+          </div>
+
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <select

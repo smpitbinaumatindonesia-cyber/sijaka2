@@ -1,6 +1,7 @@
 export interface UserAccount {
   id_user: string;
   username: string;
+  passwordHash?: string;
   password?: string;
   role: 'Admin' | 'Anggota';
 }

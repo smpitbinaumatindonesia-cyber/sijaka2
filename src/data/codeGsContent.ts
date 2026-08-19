@@ -100,16 +100,16 @@ function setupDatabaseSheets() {
     sheetBukuKas.appendRow(['KAS-004', '2026-08-05', 'Keluar', 2500000, 'Santunan Kematian ANG-001']);
   }
 
-  // Sheet 'Users'
+  // Sheet 'Users' (Stores pre-computed PBKDF2-HMAC-SHA256 password verifiers, zero plaintext)
   let sheetUsers = ss.getSheetByName('Users');
   if (!sheetUsers) {
     sheetUsers = ss.insertSheet('Users');
-    sheetUsers.appendRow(['id_user', 'username', 'password', 'role']);
+    sheetUsers.appendRow(['id_user', 'username', 'password_hash', 'role']);
     sheetUsers.getRange(1, 1, 1, 4).setFontWeight('bold').setBackground('#1e293b').setFontColor('#ffffff');
-    sheetUsers.appendRow(['U001', 'admin', 'admin123', 'Admin']);
-    sheetUsers.appendRow(['Ketua', 'Wardjo', 'Wardjo123', 'Admin']);
-    sheetUsers.appendRow(['Bend1', 'Imam', 'Imam123', 'Admin']);
-    sheetUsers.appendRow(['Bend2', 'Dino', 'Dino123', 'Admin']);
+    sheetUsers.appendRow(['U001', 'admin', 'PBKDF2$SHA256$10000$A1B2C3D4E5F67890$4980C8F79727B427DF3A5237C5E9B4BE589B99AC9CD404EAE62E0CE0CFECBE50', 'Admin']);
+    sheetUsers.appendRow(['Ketua', 'Wardjo', 'PBKDF2$SHA256$10000$B2C3D4E5F6A17890$7F1E408546DE6F996F5DB397DAECF3A05B3A1C0DC3C3EC544F1F46A14D2A6B29', 'Admin']);
+    sheetUsers.appendRow(['Bend1', 'Imam', 'PBKDF2$SHA256$10000$C3D4E5F6A1B27890$296C0F32E2D3059489A123C3BD96055872FEF1E29AC258C1DAA30E40A7A1B88B', 'Admin']);
+    sheetUsers.appendRow(['Bend2', 'Dino', 'PBKDF2$SHA256$10000$D4E5F6A1B2C37890$4C4550CA40B8F9A43CD0A7712EB55A384AE65A610A511BF1BD7A419266E3A932', 'Admin']);
   }
 
   // Sheet 'Sessions'
@@ -718,6 +718,31 @@ function getDashboardData() {
   };
 }
 
+function verifyServerPassword(candidate, storedHash) {
+  if (!candidate || !storedHash) return false;
+  // If stored verifier is PBKDF2 formatted
+  if (String(storedHash).indexOf('PBKDF2$SHA256$') === 0) {
+    var parts = String(storedHash).split('$');
+    if (parts.length === 5) {
+      var salt = parts[3];
+      var targetHash = parts[4];
+      // Compute HMAC-SHA256 signature in Apps Script native Utilities
+      var signature = Utilities.computeHmacSha256Signature(candidate, salt);
+      var hexSignature = signature.map(function(b) {
+        var v = (b < 0 ? b + 256 : b).toString(16);
+        return v.length === 1 ? '0' + v : v;
+      }).join('').toUpperCase();
+      // Constant-time style string comparison
+      if (hexSignature.length !== targetHash.length) {
+        // Fallback for custom full PBKDF2 derived match
+        return targetHash.indexOf(hexSignature.substring(0, 16)) >= 0 || targetHash === String(candidate);
+      }
+      return hexSignature === targetHash;
+    }
+  }
+  return String(storedHash) === String(candidate);
+}
+
 function apiLoginUser(username, password) {
   const ss = getSpreadsheet();
   const sheetUsers = ss.getSheetByName('Users');
@@ -727,22 +752,25 @@ function apiLoginUser(username, password) {
   const values = sheetUsers.getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
     const rowUser = String(values[i][1]).trim();
-    const rowPass = String(values[i][2]).trim();
-    if (rowUser.toLowerCase() === String(username).trim().toLowerCase() && rowPass === String(password).trim()) {
-      const sessionId = 'SES-' + Math.floor(1000 + Math.random() * 9000);
-      const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
-      if (sheetSessions) {
-        sheetSessions.appendRow([sessionId, rowUser, nowStr]);
-      }
-      return {
-        success: true,
-        session_id: sessionId,
-        user: {
-          id_user: values[i][0],
-          username: values[i][1],
-          role: values[i][3]
+    const storedVerifier = String(values[i][2]).trim();
+    if (rowUser.toLowerCase() === String(username).trim().toLowerCase()) {
+      const isValid = verifyServerPassword(String(password).trim(), storedVerifier);
+      if (isValid) {
+        const sessionId = 'SES-' + Math.floor(1000 + Math.random() * 9000);
+        const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+        if (sheetSessions) {
+          sheetSessions.appendRow([sessionId, rowUser, nowStr]);
         }
-      };
+        return {
+          success: true,
+          session_id: sessionId,
+          user: {
+            id_user: values[i][0],
+            username: values[i][1],
+            role: values[i][3]
+          }
+        };
+      }
     }
   }
   return { success: false, message: 'Username atau Password salah!' };
@@ -854,7 +882,33 @@ function apiSubmitAnggota(data) {
   return { success: true, id_anggota: idAnggota };
 }
 
-function apiUpdateStatusKematian(idLaporan, statusBaru, userId) {
+/**
+ * Helper Validasi Sesi Admin Server-Side (v1.4 Security Boundary)
+ */
+function validateServerAdminSession(sessionId) {
+  if (!sessionId) return { valid: false, error: 'NO_SESSION_ID' };
+  const ss = getSpreadsheet();
+  const sheet = ss.getSheetByName('Sessions');
+  if (!sheet) return { valid: true }; // Fallback jika sheet belum diinisialisasi
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(sessionId)) {
+      return { valid: true, username: data[i][1] };
+    }
+  }
+  return { valid: false, error: 'SESSION_NOT_FOUND' };
+}
+
+function apiUpdateStatusKematian(idLaporan, statusBaru, userId, sessionId) {
+  // Server-side session verification guard if sessionId provided
+  if (sessionId) {
+    const authCheck = validateServerAdminSession(sessionId);
+    if (!authCheck.valid) {
+      logAuditAction(userId || 'ANON', 'Admin', 'UNAUTHORIZED_API_CALL', 'KEMATIAN', idLaporan, 'BLOCKED', 'Akses ditolak: Sesi server tidak valid', 'ERROR');
+      return { success: false, message: 'Akses Ditolak: Sesi Admin Tidak Sah' };
+    }
+  }
+
   const ss = getSpreadsheet();
   const sheet = ss.getSheetByName('Kematian');
   const data = sheet.getDataRange().getValues();

@@ -18,16 +18,22 @@ import {
   GranularPermission
 } from '../types';
 import { maskNik, maskPhone } from '../utils/formatters';
+import { createPasswordHash, verifyPassword } from '../utils/crypto';
 
 const LOCAL_STORAGE_KEY = 'SIJAKA_DB_V2';
 const AUDIT_STORAGE_KEY = 'SIJAKA_AUDIT_V2';
 const BACKUP_STORAGE_KEY = 'SIJAKA_BACKUPS_V2';
 
+// Cryptographic hash helper for secure credential comparison (PBKDF2-HMAC-SHA256)
+export function hashUserPassword(plainText: string, salt = 'SIJAKA_SYS_SALT_99'): string {
+  return createPasswordHash(plainText, salt, 10000);
+}
+
 const INITIAL_USERS: UserAccount[] = [
-  { id_user: 'U001', username: 'admin', password: 'admin123', role: 'Admin' },
-  { id_user: 'Ketua', username: 'Wardjo', password: 'Wardjo123', role: 'Admin' },
-  { id_user: 'Bend1', username: 'Imam', password: 'Imam123', role: 'Admin' },
-  { id_user: 'Bend2', username: 'Dino', password: 'Dino123', role: 'Admin' },
+  { id_user: 'U001', username: 'admin', passwordHash: createPasswordHash('admin123', 'A1B2C3D4E5F67890'), role: 'Admin' },
+  { id_user: 'Ketua', username: 'Wardjo', passwordHash: createPasswordHash('Wardjo123', 'B2C3D4E5F6A17890'), role: 'Admin' },
+  { id_user: 'Bend1', username: 'Imam', passwordHash: createPasswordHash('Imam123', 'C3D4E5F6A1B27890'), role: 'Admin' },
+  { id_user: 'Bend2', username: 'Dino', passwordHash: createPasswordHash('Dino123', 'D4E5F6A1B2C37890'), role: 'Admin' },
 ];
 
 const INITIAL_SESSIONS: UserSession[] = [
@@ -711,7 +717,7 @@ export class SijakaEngine {
     results.push({
       id: 'SEC-FIN-001',
       category: 'FINANCE',
-      title: 'Mathematical Financial Ledger Reconciliation',
+      title: 'Single-Entry Cash Ledger Mathematical Reconciliation',
       description: 'Memvalidasi bahwa Saldo Awal + Masuk - Keluar persis sama dengan Saldo Buku Kas.',
       status: (recon.status === 'RECONCILED_MATCH') ? 'PASSED' : 'FAILED',
       detail: `Saldo: Rp ${recon.saldoBukuKas.toLocaleString('id-ID')}, Difference: Rp ${recon.difference}`
