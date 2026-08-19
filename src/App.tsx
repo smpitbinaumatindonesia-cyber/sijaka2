@@ -7,6 +7,11 @@ import { CodeExporter } from './components/CodeExporter';
 import { SecurityControlCenter } from './components/SecurityControlCenter';
 import { FonnteSettingsModal } from './components/FonnteSettingsModal';
 import { AdminLoginModal, AdminAccount } from './components/AdminLoginModal';
+import { ExecutiveSidebar } from './components/ExecutiveSidebar';
+import { ExecutiveTopbar } from './components/ExecutiveTopbar';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { FloatingActionModal } from './components/FloatingActionModal';
+import { FloatingWhatsAppButton } from './components/FloatingWhatsAppButton';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings'>('webApp');
@@ -14,6 +19,11 @@ export default function App() {
   const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
   const [userRole, setUserRole] = useState<'Admin' | 'Anggota'>('Anggota');
   const [currentAdmin, setCurrentAdmin] = useState<AdminAccount | null>(null);
+
+  // Executive Shell State
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleRoleChangeRequest = (requestedRole: 'Admin' | 'Anggota') => {
     if (requestedRole === 'Admin') {
@@ -34,53 +44,116 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans antialiased flex flex-col selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased flex flex-row selection:bg-blue-600 selection:text-white">
       
-      {/* Header Navigation */}
-      <Header
+      {/* 1. Desktop Executive Sidebar */}
+      <ExecutiveSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         userRole={userRole}
-        setUserRole={handleRoleChangeRequest}
       />
 
-      {/* Main View Port */}
-      <main className="flex-1 pb-12">
-        {activeTab === 'webApp' && <WebDashboard userRole={userRole} setUserRole={handleRoleChangeRequest} />}
-        {activeTab === 'waBot' && <WaBotSimulator />}
-        {activeTab === 'sheets' && <DatabaseSimulator userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
-        {activeTab === 'code' && <CodeExporter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
-        {activeTab === 'security' && <SecurityControlCenter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
-      </main>
+      {/* 2. Main Content Canvas */}
+      <div className="flex-1 flex flex-col min-w-0 pb-28 md:pb-0 overflow-x-hidden">
+        
+        {/* Executive Topbar */}
+        <ExecutiveTopbar
+          userRole={userRole}
+          currentAdmin={currentAdmin}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onRequestRoleChange={handleRoleChangeRequest}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2 font-medium">
-            <span className="text-white font-bold">SIJAKA</span>
-            <span>• Sistem Informasi Jaminan Kematian Anggota</span>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${userRole === 'Admin' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
-              Mode: {userRole} {currentAdmin ? `(${currentAdmin.username})` : ''}
-            </span>
+        {/* Secondary Navigation Ribbon (Tabs) */}
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          userRole={userRole}
+          setUserRole={handleRoleChangeRequest}
+        />
+
+        {/* Main Viewport */}
+        <main className="flex-1 p-3 sm:p-6">
+          {activeTab === 'webApp' && (
+            <WebDashboard 
+              userRole={userRole} 
+              setUserRole={handleRoleChangeRequest} 
+              onOpenWaBotSimulator={() => setActiveTab('waBot')}
+            />
+          )}
+          {activeTab === 'waBot' && <WaBotSimulator />}
+          {activeTab === 'sheets' && <DatabaseSimulator userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
+          {activeTab === 'code' && <CodeExporter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
+          {activeTab === 'security' && <SecurityControlCenter userRole={userRole} onRequestAdminLogin={() => setIsAdminLoginOpen(true)} />}
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-slate-950 text-slate-500 text-xs py-6 border-t border-slate-900 mt-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="flex items-center gap-2 font-medium">
+              <span className="text-white font-bold">SIJAKA</span>
+              <span>• Sistem Informasi Jaminan Kematian Jamaah Tahlil</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${userRole === 'Admin' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
+                Mode: {userRole} {currentAdmin ? `(${currentAdmin.username})` : ''}
+              </span>
+            </div>
+            <p className="text-slate-500">
+              Google Apps Script + Google Sheets + Fonnte WhatsApp API Integration
+            </p>
           </div>
-          <p className="text-slate-500">
-            Google Apps Script + Google Sheets + Fonnte WhatsApp API Integration
-          </p>
-        </div>
-      </footer>
+        </footer>
 
-      {/* Fonnte Settings Modal */}
+      </div>
+
+      {/* 3. Mobile Bottom Navigation (Visible on mobile screens) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenQuickMenu={() => setIsQuickMenuOpen(true)}
+      />
+
+      {/* 4. Floating Action Modal (Mobile & Fast Operations) */}
+      <FloatingActionModal
+        isOpen={isQuickMenuOpen}
+        onClose={() => setIsQuickMenuOpen(false)}
+        onOpenLaporKematian={() => {
+          setActiveTab('webApp');
+        }}
+        onOpenInputIuran={() => {
+          setActiveTab('webApp');
+        }}
+        onOpenTambahAnggota={() => {
+          setActiveTab('webApp');
+        }}
+        onSelectSubTab={() => {
+          setActiveTab('webApp');
+        }}
+        onOpenWaBot={() => setActiveTab('waBot')}
+        userRole={userRole}
+      />
+
+      {/* 5. Fonnte Settings Modal */}
       <FonnteSettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
 
-      {/* Admin Login Modal */}
+      {/* 6. Admin Login Modal */}
       <AdminLoginModal
         isOpen={isAdminLoginOpen}
         onClose={() => setIsAdminLoginOpen(false)}
         onSuccess={handleLoginSuccess}
+      />
+
+      {/* 7. Floating WhatsApp Gateway (Non-intrusive 48-54px) */}
+      <FloatingWhatsAppButton
+        onOpenSimulator={() => setActiveTab('waBot')}
+        userRole={userRole}
       />
 
     </div>

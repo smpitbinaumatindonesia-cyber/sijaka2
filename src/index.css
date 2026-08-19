@@ -13,6 +13,14 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: #050A18;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* Mobile-only safe area padding */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
