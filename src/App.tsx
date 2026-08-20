@@ -54,7 +54,9 @@ export default function App() {
     } else {
       setUserRole(requestedRole);
       // Auto-populate friendly display name based on role
-      if (requestedRole === 'Anggota') {
+      if (requestedRole === 'Public') {
+        setCurrentAdmin(null);
+      } else if (requestedRole === 'Anggota') {
         setCurrentAdmin({
           id_user: 'ANG-001',
           username: 'ahmad',
@@ -173,6 +175,11 @@ export default function App() {
                 setUserRole={handleRoleChangeRequest} 
                 onOpenWaBotSimulator={() => setActiveTab('waBot')}
                 onOpenProfile={() => setIsProfileModalOpen(true)}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                onNavigateTab={(tab) => {
+                  setActiveTab(tab);
+                  setActiveSubTab(undefined);
+                }}
                 activeSubTab={activeSubTab}
                 onSelectSubTab={setActiveSubTab}
               />

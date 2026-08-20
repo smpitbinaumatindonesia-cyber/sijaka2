@@ -45,6 +45,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
   const getRoleDisplayName = (role: SijakaRole) => {
     switch (role) {
+      case 'Public':
+        return 'Publik / Pengunjung';
       case 'Anggota':
         return 'Anggota Jamaah (KK)';
       case 'Pengurus':
@@ -61,6 +63,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
   const getRoleBadgeStyle = (role: SijakaRole) => {
     switch (role) {
+      case 'Public':
+        return 'bg-blue-500/10 text-blue-300 border-blue-500/30';
       case 'Anggota':
         return 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
       case 'Pengurus':
@@ -175,8 +179,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 Simulasi Peran Akses (Testing Switcher):
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {(['Anggota', 'Pengurus', 'Ketua', 'Admin'] as SijakaRole[]).map((r) => (
+            <div className="grid grid-cols-5 gap-1.5">
+              {(['Public', 'Anggota', 'Pengurus', 'Ketua', 'Admin'] as SijakaRole[]).map((r) => (
                 <button
                   key={r}
                   onClick={() => {

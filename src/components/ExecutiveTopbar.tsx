@@ -78,6 +78,8 @@ export const ExecutiveTopbar: React.FC<ExecutiveTopbarProps> = ({
   // Role display details
   const getRoleDisplayName = (role: SijakaRole) => {
     switch (role) {
+      case 'Public':
+        return 'Publik';
       case 'Anggota':
         return 'Anggota';
       case 'Pengurus':
@@ -94,6 +96,8 @@ export const ExecutiveTopbar: React.FC<ExecutiveTopbarProps> = ({
 
   const getRoleBadgeColor = (role: SijakaRole) => {
     switch (role) {
+      case 'Public':
+        return 'bg-blue-500/10 text-blue-300 border-blue-500/30';
       case 'Anggota':
         return 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
       case 'Pengurus':
@@ -114,6 +118,8 @@ export const ExecutiveTopbar: React.FC<ExecutiveTopbarProps> = ({
       return currentAdmin.nama;
     }
     switch (userRole) {
+      case 'Public':
+        return 'Pengunjung SIJAKA';
       case 'Anggota':
         return 'Ahmad S.';
       case 'Pengurus':
@@ -130,6 +136,8 @@ export const ExecutiveTopbar: React.FC<ExecutiveTopbarProps> = ({
 
   const getAvatarInitials = () => {
     switch (userRole) {
+      case 'Public':
+        return 'PB';
       case 'Anggota':
         return 'AS';
       case 'Pengurus':
@@ -338,7 +346,7 @@ export const ExecutiveTopbar: React.FC<ExecutiveTopbarProps> = ({
                     Ganti Peran Akses:
                   </div>
                   <div className="grid grid-cols-2 gap-1 px-1">
-                    {(['Anggota', 'Pengurus', 'Ketua', 'Admin'] as SijakaRole[]).map((r) => (
+                    {(['Public', 'Anggota', 'Pengurus', 'Ketua', 'Admin'] as SijakaRole[]).map((r) => (
                       <button
                         key={r}
                         onClick={() => {

@@ -55,12 +55,19 @@ import {
 } from '../services/dashboardService';
 
 import { SijakaRole } from '../types';
+import { PublicDashboard } from './dashboards/PublicDashboard';
+import { MemberDashboard } from './dashboards/MemberDashboard';
+import { OfficerDashboard } from './dashboards/OfficerDashboard';
+import { ChairmanDashboard } from './dashboards/ChairmanDashboard';
+import { AdminDashboard } from './dashboards/AdminDashboard';
 
 interface WebDashboardProps {
   userRole?: SijakaRole;
   setUserRole?: (role: SijakaRole) => void;
   onOpenWaBotSimulator?: () => void;
   onOpenProfile?: () => void;
+  onOpenSettings?: () => void;
+  onNavigateTab?: (tab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security') => void;
   activeSubTab?: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan';
   onSelectSubTab?: (tab: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan') => void;
 }
@@ -70,6 +77,8 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({
   setUserRole, 
   onOpenWaBotSimulator,
   onOpenProfile,
+  onOpenSettings,
+  onNavigateTab,
   activeSubTab: externalSubTab,
   onSelectSubTab
 }) => {
@@ -445,209 +454,263 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({
   return (
     <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-7 font-sans">
       
-      {/* 1. Dynamic Hero Banner based on Member Status */}
-      <DynamicHero
-        memberStatus={memberStatus}
-        onStatusChange={setMemberStatus}
-        onOpenLaporKematian={() => setShowModalKematian(true)}
-        onOpenInputIuran={() => {
-          if (!handleRestrictedAction('Input Iuran')) {
-            setShowModalIuran(true);
-          }
-        }}
-        onOpenTambahAnggota={handleOpenTambahAnggota}
-        onRefresh={refreshData}
-        userRole={userRole}
-      />
+      {/* A. INITIAL ROLE-SPECIFIC DASHBOARDS (When no subtab is active) */}
+      {!externalSubTab ? (
+        <>
+          {userRole === 'Public' && (
+            <PublicDashboard
+              onLoginClick={() => {
+                if (setUserRole) setUserRole('Anggota');
+              }}
+              onSelectRole={(r) => {
+                if (setUserRole) setUserRole(r);
+              }}
+              onOpenWaContact={() => {
+                if (onOpenWaBotSimulator) onOpenWaBotSimulator();
+              }}
+              totalMembersCount={data.anggota.length}
+              totalProtectedSouls={metrics.totalMembers}
+            />
+          )}
 
-      {/* 2. Quick Actions Panel */}
-      <QuickActionsPanel
-        onOpenLaporKematian={() => setShowModalKematian(true)}
-        onOpenInputIuran={() => {
-          if (!handleRestrictedAction('Input Iuran')) {
-            setShowModalIuran(true);
-          }
-        }}
-        onOpenTambahAnggota={handleOpenTambahAnggota}
-        onSelectSubTab={handleSubTabChange}
-        onOpenWaBotSimulator={() => {
-          if (onOpenWaBotSimulator) onOpenWaBotSimulator();
-        }}
-        onOpenProfile={onOpenProfile}
-        userRole={userRole}
-      />
+          {userRole === 'Anggota' && (
+            <MemberDashboard
+              activeAnggota={data.anggota.find(a => a.id.toUpperCase() === activeAnggotaId.toUpperCase()) || data.anggota[0]}
+              keluargaList={data.keluarga}
+              iuranList={data.iuran}
+              kematianList={data.kematian}
+              memberStatus={memberStatus}
+              onStatusChange={setMemberStatus}
+              onOpenLaporKematian={() => setShowModalKematian(true)}
+              onOpenInputIuran={() => {
+                if (!handleRestrictedAction('Input Iuran')) {
+                  setShowModalIuran(true);
+                }
+              }}
+              onOpenTambahKeluarga={() => setShowModalKeluarga(true)}
+              onOpenEditKeluarga={handleOpenEditKeluarga}
+              onOpenEditAnggota={handleOpenEditAnggota}
+              onSelectSubTab={handleSubTabChange}
+              activities={activities}
+              allAnggota={data.anggota}
+              onSelectAnggotaId={setActiveAnggotaId}
+            />
+          )}
 
-      {/* 3. Executive KPI Cards (4 Column Grid) */}
-      {isLoading ? (
-        <KpiSkeleton count={4} />
-      ) : (
-        <ExecutiveKpiCards
-          metrics={metrics}
-          kasMasukTotal={data.summaryKas.masuk}
-        />
-      )}
+          {userRole === 'Pengurus' && (
+            <OfficerDashboard
+              officerName="Budi Santoso"
+              metrics={metrics}
+              anggotaList={data.anggota}
+              iuranList={data.iuran}
+              kematianList={data.kematian}
+              bukuKasList={data.bukukas}
+              summaryKas={data.summaryKas}
+              activities={activities}
+              onOpenInputIuran={() => setShowModalIuran(true)}
+              onOpenLaporKematian={() => setShowModalKematian(true)}
+              onOpenTambahAnggota={handleOpenTambahAnggota}
+              onSelectSubTab={handleSubTabChange}
+            />
+          )}
 
-      {/* 4. Analytics Section: Interactive Payment Chart + Progress Iuran Panel */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-7">
-            <ChartSkeleton />
-          </div>
-          <div className="lg:col-span-5">
-            <ChartSkeleton />
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-7">
-            <InteractivePaymentChart
+          {userRole === 'Ketua' && (
+            <ChairmanDashboard
+              chairmanName="H. Ahmad"
+              metrics={metrics}
+              anggotaList={data.anggota}
+              iuranList={data.iuran}
+              kematianList={data.kematian}
+              bukuKasList={data.bukukas}
+              summaryKas={data.summaryKas}
               paymentHistory={paymentHistory}
               selectedYear={selectedYear}
-              onSelectYear={setSelectedYear}
+              onYearChange={setSelectedYear}
+              activities={activities}
+              onSelectSubTab={handleSubTabChange}
             />
-          </div>
-          <div className="lg:col-span-5">
-            <ProgressIuranPanel
-              selectedYear={selectedYear}
-              onSelectYear={setSelectedYear}
-            />
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* 6. Two-Column Analytics Grid: Recent Activities + Recent Members */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
-            <ActivitySkeleton />
-          </div>
-          <div className="lg:col-span-6">
-            <MemberListSkeleton />
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
-            <RecentActivitiesPanel activities={activities} />
-          </div>
-          <div className="lg:col-span-6">
-            <RecentMembersTable
+          {(userRole === 'Admin' || userRole === 'Super Admin') && (
+            <AdminDashboard
+              userRole={userRole}
+              metrics={metrics}
               anggotaList={data.anggota}
-              onViewAllMembers={() => handleSubTabChange('anggota')}
+              iuranList={data.iuran}
+              kematianList={data.kematian}
+              bukuKasList={data.bukukas}
+              summaryKas={data.summaryKas}
+              paymentHistory={paymentHistory}
+              selectedYear={selectedYear}
+              onYearChange={setSelectedYear}
+              activities={activities}
+              onOpenWaBotSimulator={onOpenWaBotSimulator}
+              onOpenSettings={onOpenSettings}
+              onNavigateTab={onNavigateTab}
+              onSelectSubTab={handleSubTabChange}
+              onOpenTambahAnggota={handleOpenTambahAnggota}
+              onOpenInputIuran={() => setShowModalIuran(true)}
+              onOpenLaporKematian={() => setShowModalKematian(true)}
             />
-          </div>
-        </div>
-      )}
-
-      {/* Role Permission Guidance Banner */}
-      <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-sm ${
-        userRole === 'Anggota'
-          ? 'bg-slate-900 border-emerald-500/40 text-emerald-300'
-          : 'bg-slate-900 border-amber-500/40 text-amber-300'
-      }`}>
-        <div className="flex items-start sm:items-center gap-3">
-          <div className={`p-2.5 rounded-xl shrink-0 ${
-            userRole === 'Anggota' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-amber-600 text-white shadow-sm'
-          }`}>
-            {userRole === 'Anggota' ? <UserCheck className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
-          </div>
-          <div>
-            <div className="font-extrabold text-sm flex items-center gap-2 flex-wrap">
-              <span>Mode Hak Akses Aktif: <strong className="underline">{userRole}</strong></span>
-              {userRole === 'Anggota' ? (
-                <span className="bg-emerald-950 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/40">
-                  Batasan Akses Terpasang
-                </span>
-              ) : (
-                <span className="bg-amber-950 text-amber-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-amber-500/40">
-                  Pengurus / Super Admin
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
-              {userRole === 'Anggota' 
-                ? 'Hak akses Anggota: 1. Dashboard Ringkasan, 2. Pelaporan Kematian, 3. Pendaftaran Anggota, & 4. Edit Data Keluarga Sendiri (Kepala Keluarga).'
-                : 'Akses Pengurus/Admin penuh: Bebas mengelola Iuran, Buku Kas Financials, User Accounts, Edit Semua Anggota, & WA Gateway.'}
-            </p>
-
-            {userRole === 'Anggota' && (
-              <div className="mt-2 pt-2 border-t border-slate-800 flex flex-wrap items-center gap-2 text-xs">
-                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Akun Kepala Keluarga Aktif:</span>
-                </span>
-                <select
-                  value={activeAnggotaId}
-                  onChange={(e) => setActiveAnggotaId(e.target.value)}
-                  className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 font-bold text-white text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  {data.anggota.map(a => (
-                    <option key={a.id} value={a.id}>
-                      {a.id} - {a.nama} ({a.keluarga?.length || 0} Tanggungan)
-                    </option>
-                  ))}
-                </select>
-                <span className="text-[11px] text-slate-400 font-medium italic">
-                  (Hanya berhak mengedit data keluarga milik ID {activeAnggotaId})
-                </span>
+          )}
+        </>
+      ) : (
+        /* B. SUB-TAB DETAILED DATA & OPERATIONAL WORKSPACE (When subtab is selected) */
+        <div className="space-y-6 animate-in fade-in duration-300">
+          
+          {/* Breadcrumb / Back Navigation Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  if (onSelectSubTab) onSelectSubTab(undefined as any);
+                }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition-all border border-slate-700 shadow-sm"
+              >
+                <span>← Kembali ke Dashboard Utama</span>
+              </button>
+              <div className="text-xs text-slate-400">
+                Modul: <span className="text-white font-bold capitalize">{activeSubTab}</span>
               </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-slate-400">Peran Aktif:</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 font-bold">
+                {userRole}
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Actions Panel */}
+          <QuickActionsPanel
+            onOpenLaporKematian={() => setShowModalKematian(true)}
+            onOpenInputIuran={() => {
+              if (!handleRestrictedAction('Input Iuran')) {
+                setShowModalIuran(true);
+              }
+            }}
+            onOpenTambahAnggota={handleOpenTambahAnggota}
+            onSelectSubTab={handleSubTabChange}
+            onOpenWaBotSimulator={() => {
+              if (onOpenWaBotSimulator) onOpenWaBotSimulator();
+            }}
+            onOpenProfile={onOpenProfile}
+            userRole={userRole}
+          />
+
+          {/* Role Permission Guidance Banner */}
+          <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-sm ${
+            userRole === 'Anggota'
+              ? 'bg-slate-900 border-emerald-500/40 text-emerald-300'
+              : 'bg-slate-900 border-amber-500/40 text-amber-300'
+          }`}>
+            <div className="flex items-start sm:items-center gap-3">
+              <div className={`p-2.5 rounded-xl shrink-0 ${
+                userRole === 'Anggota' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-amber-600 text-white shadow-sm'
+              }`}>
+                {userRole === 'Anggota' ? <UserCheck className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+              </div>
+              <div>
+                <div className="font-extrabold text-sm flex items-center gap-2 flex-wrap">
+                  <span>Mode Hak Akses Aktif: <strong className="underline">{userRole}</strong></span>
+                  {userRole === 'Anggota' ? (
+                    <span className="bg-emerald-950 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-emerald-500/40">
+                      Batasan Akses Terpasang
+                    </span>
+                  ) : (
+                    <span className="bg-amber-950 text-amber-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-amber-500/40">
+                      Pengurus / Super Admin
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                  {userRole === 'Anggota' 
+                    ? 'Hak akses Anggota: 1. Dashboard Ringkasan, 2. Pelaporan Kematian, 3. Pendaftaran Anggota, & 4. Edit Data Keluarga Sendiri (Kepala Keluarga).'
+                    : 'Akses Pengurus/Admin penuh: Bebas mengelola Iuran, Buku Kas Financials, User Accounts, Edit Semua Anggota, & WA Gateway.'}
+                </p>
+
+                {userRole === 'Anggota' && (
+                  <div className="mt-2 pt-2 border-t border-slate-800 flex flex-wrap items-center gap-2 text-xs">
+                    <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                      <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Akun Kepala Keluarga Aktif:</span>
+                    </span>
+                    <select
+                      value={activeAnggotaId}
+                      onChange={(e) => setActiveAnggotaId(e.target.value)}
+                      className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 font-bold text-white text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      {data.anggota.map(a => (
+                        <option key={a.id} value={a.id}>
+                          {a.id} - {a.nama} ({a.keluarga?.length || 0} Tanggungan)
+                        </option>
+                      ))}
+                    </select>
+                    <span className="text-[11px] text-slate-400 font-medium italic">
+                      (Hanya berhak mengedit data keluarga milik ID {activeAnggotaId})
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {setUserRole && (
+              <button
+                onClick={() => setUserRole(userRole === 'Anggota' ? 'Admin' : 'Anggota')}
+                className={`text-xs font-bold px-4 py-2 rounded-xl border transition-all whitespace-nowrap shadow-sm hover:scale-[1.02] active:scale-[0.98] shrink-0 ${
+                  userRole === 'Anggota'
+                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-600'
+                    : 'bg-amber-700 hover:bg-amber-800 text-white border-amber-600'
+                }`}
+              >
+                Ubah Mode ke {userRole === 'Anggota' ? 'Admin / Pengurus' : 'Anggota'}
+              </button>
             )}
           </div>
-        </div>
 
-        {setUserRole && (
-          <button
-            onClick={() => setUserRole(userRole === 'Anggota' ? 'Admin' : 'Anggota')}
-            className={`text-xs font-bold px-4 py-2 rounded-xl border transition-all whitespace-nowrap shadow-sm hover:scale-[1.02] active:scale-[0.98] shrink-0 ${
-              userRole === 'Anggota'
-                ? 'bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-600'
-                : 'bg-amber-700 hover:bg-amber-800 text-white border-amber-600'
-            }`}
-          >
-            Ubah Mode ke {userRole === 'Anggota' ? 'Admin / Pengurus' : 'Anggota'}
-          </button>
-        )}
-      </div>
+          {/* Financial Health Progress Visualizer */}
+          <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-md space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-400" />
+                <span className="font-bold text-white text-xs sm:text-sm">Ringkasan Kesehatan Kas Utama SIJAKA</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                <span className="flex items-center gap-1.5 font-semibold text-emerald-400">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
+                  Masuk: {formatRupiah(data.summaryKas.masuk)}
+                </span>
+                <span className="flex items-center gap-1.5 font-semibold text-rose-400">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span>
+                  Santunan: {formatRupiah(data.summaryKas.keluar)}
+                </span>
+                <span className="flex items-center gap-1.5 font-semibold text-blue-400">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-blue-500 inline-block"></span>
+                  Saldo: {formatRupiah(data.summaryKas.saldo)}
+                </span>
+              </div>
+            </div>
 
-      {/* Financial Health Progress Visualizer */}
-      <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-md space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-blue-400" />
-            <span className="font-bold text-white text-xs sm:text-sm">Ringkasan Kesehatan Kas Utama SIJAKA</span>
+            {/* Visual Progress Bar */}
+            <div className="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden flex shadow-inner">
+              <div 
+                className="bg-emerald-500 h-full transition-all duration-500" 
+                style={{ width: `${Math.min(100, (data.summaryKas.masuk / Math.max(1, data.summaryKas.masuk)) * 100)}%` }}
+                title="Kas Masuk"
+              ></div>
+              <div 
+                className="bg-rose-500 h-full transition-all duration-500" 
+                style={{ width: `${Math.min(100, (data.summaryKas.keluar / Math.max(1, data.summaryKas.masuk)) * 100)}%` }}
+                title="Kas Keluar"
+              ></div>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="flex items-center gap-1.5 font-semibold text-emerald-400">
-              <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>
-              Masuk: {formatRupiah(data.summaryKas.masuk)}
-            </span>
-            <span className="flex items-center gap-1.5 font-semibold text-rose-400">
-              <span className="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span>
-              Santunan: {formatRupiah(data.summaryKas.keluar)}
-            </span>
-            <span className="flex items-center gap-1.5 font-semibold text-blue-400">
-              <span className="w-2.5 h-2.5 rounded-sm bg-blue-500 inline-block"></span>
-              Saldo: {formatRupiah(data.summaryKas.saldo)}
-            </span>
-          </div>
         </div>
+      )}
 
-        {/* Visual Progress Bar */}
-        <div className="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden flex shadow-inner">
-          <div 
-            className="bg-emerald-500 h-full transition-all duration-500" 
-            style={{ width: `${Math.min(100, (data.summaryKas.masuk / Math.max(1, data.summaryKas.masuk)) * 100)}%` }}
-            title="Kas Masuk"
-          ></div>
-          <div 
-            className="bg-rose-500 h-full transition-all duration-500" 
-            style={{ width: `${Math.min(100, (data.summaryKas.keluar / Math.max(1, data.summaryKas.masuk)) * 100)}%` }}
-            title="Kas Keluar"
-          ></div>
-        </div>
-      </div>
-
-      {/* Main Table Content Container */}
+      {/* Main Table Content Container (Rendered when subtab is active) */}
+      {externalSubTab && (
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-md overflow-hidden">
         
         {/* Navigation Sub-Tabs & Controls */}
@@ -1400,6 +1463,7 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({
         )}
 
       </div>
+      )}
 
       {/* MODAL LAPOR KEMATIAN */}
       {showModalKematian && (

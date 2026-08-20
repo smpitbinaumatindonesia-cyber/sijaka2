@@ -1,4 +1,4 @@
-export type SijakaRole = 'Anggota' | 'Pengurus' | 'Ketua' | 'Admin' | 'Super Admin';
+export type SijakaRole = 'Public' | 'Anggota' | 'Pengurus' | 'Ketua' | 'Admin' | 'Super Admin';
 
 export interface UserAccount {
   id_user: string;
@@ -168,6 +168,10 @@ export interface BukuKas {
   nominal: number;
   keterangan: string;
 }
+
+export type IuranRecord = Iuran;
+export type KematianRecord = Kematian;
+export type BukuKasRecord = BukuKas;
 
 export interface FonnteConfig {
   fonnteToken: string;
