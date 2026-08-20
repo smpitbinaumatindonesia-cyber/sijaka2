@@ -59,7 +59,7 @@ const INITIAL_CONFIG: FonnteConfig = {
   autoBroadcast: true,
   spreadsheetId: '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E',
   spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing',
-  gasExecUrl: 'https://script.google.com/macros/s/AKfycbwYOUR_APP_SCRIPT_ID/exec',
+  apiUrl: '/api/sheets',
   environment: 'production'
 };
 
@@ -1406,7 +1406,7 @@ export class SijakaEngine {
   }
 
   // -------------------------------------------------------------------
-  // WA BOT WEBHOOK SIMULATOR ENGINE (Exact replica of Code.gs doPost)
+  // WA BOT WEBHOOK SIMULATOR ENGINE (Vercel Serverless WhatsApp Gateway)
   // -------------------------------------------------------------------
   public processIncomingWebhook(payload: {
     sender: string;

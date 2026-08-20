@@ -61,7 +61,7 @@ export const ExecutiveSidebar: React.FC<ExecutiveSidebarProps> = ({
     { id: 'laporan', label: 'Laporan & Buku Kas', icon: FileText, tab: 'webApp' as const, subTab: 'bukukas' as const },
     { id: 'database', label: 'Database Sheets', icon: Database, tab: 'sheets' as const, subTab: undefined },
     { id: 'wabot', label: 'Simulator WA Bot', icon: MessageSquare, tab: 'waBot' as const, subTab: undefined },
-    { id: 'code', label: 'Salin Code & HTML', icon: Code2, tab: 'code' as const, subTab: undefined },
+    { id: 'code', label: 'Vercel API & Config', icon: Code2, tab: 'code' as const, subTab: undefined },
     { id: 'security', label: 'Security & Control', icon: ShieldCheck, tab: 'security' as const, subTab: undefined },
   ];
 

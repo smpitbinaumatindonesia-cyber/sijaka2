@@ -6,19 +6,7 @@ import {
   Code2, 
   Lock, 
   Settings, 
-  Activity, 
-  Users, 
-  DollarSign, 
-  Heart, 
-  FileText, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Wifi, 
-  Server, 
-  Cpu, 
-  ChevronRight,
-  TrendingUp,
-  Sparkles
+  Server
 } from 'lucide-react';
 import { DashboardMetricData, YearPaymentHistory, ActivityItem } from '../../services/dashboardService';
 import { Anggota, IuranRecord, KematianRecord, BukuKasRecord, SijakaRole } from '../../types';
@@ -52,113 +40,79 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   userRole,
   metrics,
   anggotaList,
-  iuranList,
-  kematianList,
-  bukuKasList,
   summaryKas,
   paymentHistory,
   selectedYear,
   onYearChange,
   activities,
-  onOpenWaBotSimulator,
   onOpenSettings,
   onNavigateTab,
-  onSelectSubTab,
-  onOpenTambahAnggota,
-  onOpenInputIuran,
-  onOpenLaporKematian
+  onSelectSubTab
 }) => {
   const isSuperAdmin = userRole === 'Super Admin';
 
   return (
-    <div className="space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
+    <div className="space-y-8 font-sans max-w-6xl mx-auto animate-in fade-in duration-300">
       
-      {/* 1. ADMINISTRATIVE WELCOME HERO */}
-      <div className="relative rounded-3xl p-6 sm:p-8 lg:p-9 bg-[#0B1428] border border-amber-500/30 shadow-xl overflow-hidden">
-        {/* Glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="relative z-10 space-y-5">
-          
-          {/* Header & Salam */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
-            <div className="space-y-0.5">
-              <span className="text-xs text-slate-400 font-medium">ASSALAMU’ALAIKUM WARAHMATULLAHI WABARAKATUH</span>
-              <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-                <span>Selamat Datang, Admin SIJAKA</span>
-                <span>👋</span>
-              </h1>
-            </div>
-
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span>{isSuperAdmin ? 'SUPER ADMINISTRATOR' : 'ADMINISTRATOR UTAMA'}</span>
-            </div>
-          </div>
-
-          {/* Subtitles */}
+      {/* 1. ADMINISTRATIVE HERO RINGKAS */}
+      <div className="rounded-3xl p-6 sm:p-8 bg-[#0B1428] border border-slate-800 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <div className="space-y-1">
-            <div className="text-sm sm:text-base font-bold text-amber-400 tracking-wide uppercase">
-              PUSAT KENDALI ADMINISTRASI SIJAKA
-            </div>
-            <div className="text-xs text-slate-400 font-medium">
-              Sistem Informasi Jaminan Kematian • Jamaah Tahlil Ar Rohman • RT 06 • RT 07 • RT 10 — Perum GPA Ngijo
-            </div>
+            <span className="text-xs text-slate-400 font-medium">Assalamu’alaikum warahmatullahi wabarakatuh</span>
+            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
+              <span>Pusat Kendali Administrasi Sistem</span>
+            </h1>
+            <p className="text-xs text-slate-400">
+              Jamaah Tahlil Ar Rohman • RT 06 • RT 07 • RT 10 — Perum GPA Ngijo
+            </p>
           </div>
 
-          {/* Narrative */}
-          <p className="text-xs sm:text-sm text-slate-300 max-w-4xl leading-relaxed">
-            Pusat kendali dan audit administrasi sistem: Google Sheets database sinkron, WhatsApp gateway, manajemen akses pengguna, dan log keamanan terproteksi.
-          </p>
-
-          {/* Tagline */}
-          <div className="pt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-            <span className="font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
-              Semboyan Administrasi:
-            </span>
-            <span className="font-semibold text-slate-200">
-              “Mengelola Data dengan Amanah, Melayani Jamaah dengan Tertib, Menjaga Amanah Bersama.”
-            </span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold self-start sm:self-center">
+            <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <span>{isSuperAdmin ? 'SUPER ADMINISTRATOR' : 'ADMINISTRATOR UTAMA'}</span>
           </div>
-
         </div>
+
+        <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-3xl">
+          Pengawasan infrastruktur backend Vercel Serverless API, sinkronisasi 10 skema Google Sheets, audit keamanan PBKDF2, dan gateway notifikasi WhatsApp.
+        </p>
       </div>
 
       {/* 2. SYSTEM HEALTH & INTEGRATION STATUS BAR */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-[#0B1428] border border-slate-800/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <Server className="w-5 h-5" />
           </div>
           <div>
             <div className="text-xs font-bold text-white flex items-center gap-2">
-              <span>System Health & Integration Status</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold border border-emerald-500/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Status Infrastruktur & Integrasi</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold border border-emerald-500/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                 <span>PRODUCTION READY</span>
               </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Backend GAS RPC: Online (12s timeout safe) • PBKDF2 HMAC-SHA256 Sessions Active
+              Backend Vercel API: Online (Secure Data Layer) • Enkripsi PBKDF2-HMAC-SHA256 Aktif
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
             <Database className="w-3.5 h-3.5 text-blue-400" />
-            <span>Sheets 10 Schema: OK</span>
+            <span>10 Skema Sheets: OK</span>
           </span>
 
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
             <Bot className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Fonnte WA: Active</span>
+            <span>WA Fonnte: Aktif</span>
           </span>
 
           {onOpenSettings && (
             <button
               onClick={onOpenSettings}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all text-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all text-xs min-h-[36px]"
             >
               <Settings className="w-3.5 h-3.5" />
               <span>Konfigurasi</span>
@@ -167,27 +121,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       </div>
 
-      {/* 3. ADMIN KPI SUMMARY CARDS */}
+      {/* 3. MAKSIMAL 4 KPI UTAMA SISTEM */}
       <ExecutiveKpiCards
         metrics={metrics}
         kasMasukTotal={summaryKas.masuk}
       />
 
-      {/* 4. ADMIN SYSTEM CONTROL PANELS (Quick Admin Tools) */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800/80 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-          <div className="flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-blue-400" />
-            <h2 className="text-base font-bold text-white">Alat Administrasi & Pengawasan Sistem</h2>
-          </div>
-          <span className="text-xs text-slate-400 font-medium">Panel Terproteksi RBAC</span>
+      {/* 4. ALAT ADMINISTRASI & PENGAWASAN SISTEM */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 className="text-base font-bold text-white">Alat Administrasi & Pengawasan Sistem</h2>
+          <span className="text-xs text-slate-400">Akses Terproteksi RBAC</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
           
           <button
             onClick={() => onNavigateTab && onNavigateTab('sheets')}
-            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group"
+            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group min-h-[48px]"
           >
             <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center mb-2">
               <Database className="w-4 h-4" />
@@ -198,7 +149,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => onNavigateTab && onNavigateTab('waBot')}
-            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group"
+            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group min-h-[48px]"
           >
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-2">
               <Bot className="w-4 h-4" />
@@ -209,18 +160,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => onNavigateTab && onNavigateTab('code')}
-            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group"
+            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group min-h-[48px]"
           >
             <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center mb-2">
               <Code2 className="w-4 h-4" />
             </div>
-            <div className="font-bold text-white group-hover:text-purple-300 text-xs">GAS Code Exporter</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Salin Script Backend</div>
+            <div className="font-bold text-white group-hover:text-purple-300 text-xs">Vercel API Exporter</div>
+            <div className="text-[10px] text-slate-400 mt-0.5">Skema & Serverless Handler</div>
           </button>
 
           <button
             onClick={() => onNavigateTab && onNavigateTab('security')}
-            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group"
+            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group min-h-[48px]"
           >
             <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center mb-2">
               <Lock className="w-4 h-4" />
@@ -231,13 +182,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={onOpenSettings}
-            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group"
+            className="p-3.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-all group min-h-[48px]"
           >
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center mb-2">
               <Settings className="w-4 h-4" />
             </div>
             <div className="font-bold text-white group-hover:text-amber-300 text-xs">Konfigurasi Produksi</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Masked Secret & GAS URL</div>
+            <div className="text-[10px] text-slate-400 mt-0.5">Masked Secret & API Endpoint</div>
           </button>
 
         </div>

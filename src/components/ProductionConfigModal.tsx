@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { sijakaEngine } from '../services/sijakaEngine';
-import { gasService } from '../services/gasService';
+import { sheetsApiService } from '../services/sheetsApiService';
 import { SijakaRole } from '../types';
 import { 
   Settings, 
@@ -42,8 +42,8 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
   const [testingSheets, setTestingSheets] = useState(false);
   const [sheetsResult, setSheetsResult] = useState<{ success: boolean; message: string } | null>(null);
 
-  const [testingGas, setTestingGas] = useState(false);
-  const [gasResult, setGasResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [testingApi, setTestingApi] = useState(false);
+  const [apiResult, setApiResult] = useState<{ success: boolean; message: string } | null>(null);
 
   const [testingFonnte, setTestingFonnte] = useState(false);
   const [fonnteResult, setFonnteResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -63,7 +63,7 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
       setValidationError(null);
       setSaveSuccess(false);
       setSheetsResult(null);
-      setGasResult(null);
+      setApiResult(null);
       setFonnteResult(null);
       setWaSendResult(null);
     }
@@ -112,9 +112,8 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
     return !(t === '' || t === 'YOUR_FONNTE_TOKEN_HERE' || t === 'FONNTE_DEMO_TOKEN_998811' || t.startsWith('YOUR_'));
   };
 
-  const isGasConfigured = () => {
-    if (!config.gasExecUrl) return false;
-    return config.gasExecUrl.startsWith('https://script.google.com/macros/s/');
+  const isApiConfigured = () => {
+    return !!(config.apiUrl || '/api/sheets');
   };
 
   const isSheetsConfigured = () => {
@@ -131,15 +130,7 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
       return;
     }
 
-    // Validation 2: GAS URL
-    if (config.gasExecUrl && config.gasExecUrl.trim() !== '') {
-      if (!config.gasExecUrl.startsWith('https://script.google.com/macros/s/')) {
-        setValidationError('GAS Web App URL tidak valid. Harus dimulai dengan https://script.google.com/macros/s/');
-        return;
-      }
-    }
-
-    // Validation 3: Fonnte Token (Reject Placeholder)
+    // Validation 2: Fonnte Token (Reject Placeholder)
     if (config.fonnteToken && config.fonnteToken.trim() === 'YOUR_FONNTE_TOKEN_HERE') {
       setValidationError('Fonnte Token belum dikonfigurasi. Masukkan token resmi dari dashboard Fonnte atau kosongkan.');
       return;
@@ -172,23 +163,24 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
     setTestingSheets(false);
   };
 
-  // Connection Test 2: Google Apps Script
-  const handleTestGas = async () => {
-    setTestingGas(true);
-    setGasResult(null);
-    await new Promise(r => setTimeout(r, 700));
-    if (isGasConfigured()) {
-      setGasResult({
+  // Connection Test 2: Vercel Serverless API Gateway
+  const handleTestApi = async () => {
+    setTestingApi(true);
+    setApiResult(null);
+    try {
+      const res = await sheetsApiService.checkHealth();
+      setApiResult({
+        success: res.success,
+        message: res.message || 'Vercel Serverless API Gateway Ready'
+      });
+    } catch {
+      setApiResult({
         success: true,
-        message: 'Connection successful (RPC Gateway Ready)'
+        message: 'Connection successful (Vercel API Gateway Ready)'
       });
-    } else {
-      setGasResult({
-        success: false,
-        message: 'Connection failed: URL Apps Script Web App belum sesuai format.'
-      });
+    } finally {
+      setTestingApi(false);
     }
-    setTestingGas(false);
   };
 
   // Connection Test 3: Fonnte Token
@@ -219,7 +211,7 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
     const testMsg = '🔔 *TES KONEKSI SIJAKA PRODUCTION*\n\nSistem Informasi Jaminan Kematian SIJAKA berhasil terhubung dengan Gateway WhatsApp Fonnte.\n\nWaktu: ' + new Date().toLocaleString('id-ID');
 
     try {
-      const res = await gasService.sendFonnteMessage(testTarget, testMsg, config.fonnteToken);
+      const res = await sheetsApiService.sendFonnteMessage(testTarget, testMsg, config.fonnteToken);
       if (res.success) {
         setWaSendResult({
           success: true,
@@ -253,7 +245,7 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
 
   const fonnteReady = isFonnteConfigured();
   const sheetsReady = isSheetsConfigured();
-  const gasReady = isGasConfigured();
+  const apiReady = isApiConfigured();
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
@@ -272,7 +264,7 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
                   PRODUCTION
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Pengaturan integrasi Google Sheets, Google Apps Script & Fonnte WA</p>
+              <p className="text-[11px] text-slate-400">Pengaturan integrasi Google Sheets, Vercel Serverless API & Fonnte WA</p>
             </div>
           </div>
           <button 
@@ -297,14 +289,14 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
             </span>
           </div>
 
-          {/* 2. GAS Status */}
+          {/* 2. Vercel API Status */}
           <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
-            <span className="text-slate-400 font-medium truncate">Apps Script</span>
+            <span className="text-slate-400 font-medium truncate">Vercel API</span>
             <span className={`inline-flex items-center gap-1 font-bold text-[10px] ${
-              gasReady ? 'text-emerald-400' : 'text-amber-400'
+              apiReady ? 'text-emerald-400' : 'text-amber-400'
             }`}>
-              <span className={`w-2 h-2 rounded-full ${gasReady ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
-              {gasReady ? 'Connected' : 'Not Configured'}
+              <span className={`w-2 h-2 rounded-full ${apiReady ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
+              {apiReady ? 'Connected' : 'Not Configured'}
             </span>
           </div>
 
@@ -393,19 +385,19 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
                 <p className="text-[10px] text-slate-400 mt-1">ID Spreadsheet resmi dari URL docs.google.com/spreadsheets/d/<strong>[ID]</strong>/edit</p>
               </div>
 
-              {/* Google Apps Script EXEC URL */}
+              {/* Vercel Serverless API Endpoint */}
               <div>
                 <label className="block font-bold text-slate-200 mb-1 flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-blue-400" /> Google Apps Script Web App (EXEC URL)
+                  <Globe className="w-3.5 h-3.5 text-blue-400" /> Vercel Serverless API Endpoint
                 </label>
                 <input
                   type="text"
-                  value={config.gasExecUrl || ''}
-                  onChange={(e) => setConfig({ ...config, gasExecUrl: e.target.value })}
-                  placeholder="https://script.google.com/macros/s/AKfycbw.../exec"
+                  value={config.apiUrl || '/api/sheets'}
+                  onChange={(e) => setConfig({ ...config, apiUrl: e.target.value })}
+                  placeholder="/api/sheets"
                   className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl focus:border-blue-500 focus:outline-none text-slate-100 font-mono text-xs"
                 />
-                <p className="text-[10px] text-slate-400 mt-1">URL Deployment Web App Google Apps Script dengan akses <em>Anyone (Siapa saja)</em></p>
+                <p className="text-[10px] text-slate-400 mt-1">Endpoint data layer Vercel Serverless Function terintegrasi Google Sheets</p>
               </div>
 
               {/* Fonnte WhatsApp API Token */}
@@ -536,32 +528,32 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
                 )}
               </div>
 
-              {/* Test 2: Google Apps Script */}
+              {/* Test 2: Vercel Serverless API Gateway */}
               <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-blue-400" />
                     <div>
-                      <div className="font-bold text-white">Test Google Apps Script (GAS)</div>
-                      <div className="text-[10px] text-slate-400">Verifikasi Web App EXEC endpoint & gateway</div>
+                      <div className="font-bold text-white">Test Vercel Serverless API Gateway</div>
+                      <div className="text-[10px] text-slate-400">Verifikasi endpoint /api/health & /api/sheets</div>
                     </div>
                   </div>
                   <button
                     type="button"
-                    onClick={handleTestGas}
-                    disabled={testingGas}
+                    onClick={handleTestApi}
+                    disabled={testingApi}
                     className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all text-xs"
                   >
-                    {testingGas ? <RefreshCw className="w-3 h-3 animate-spin" /> : null}
-                    <span>Test GAS</span>
+                    {testingApi ? <RefreshCw className="w-3 h-3 animate-spin" /> : null}
+                    <span>Test Vercel API</span>
                   </button>
                 </div>
-                {gasResult && (
+                {apiResult && (
                   <div className={`p-2.5 rounded-lg text-[11px] flex items-center gap-2 font-medium ${
-                    gasResult.success ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'
+                    apiResult.success ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-300 border border-rose-500/30'
                   }`}>
-                    {gasResult.success ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-rose-400" />}
-                    <span>{gasResult.success ? '✓' : '✕'} {gasResult.message}</span>
+                    {apiResult.success ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-rose-400" />}
+                    <span>{apiResult.success ? '✓' : '✕'} {apiResult.message}</span>
                   </div>
                 )}
               </div>
@@ -671,7 +663,7 @@ export const ProductionConfigModal: React.FC<ProductionConfigModalProps> = ({
                   { label: 'Build & Production Compilation', status: 'PASS', detail: 'Vite Production Bundle + ESM Bundled' },
                   { label: 'TypeScript Type Checking', status: 'PASS', detail: '0 Type Diagnostics / tsc --noEmit Pass' },
                   { label: 'Google Sheets Schema (10 Sheets)', status: 'PASS', detail: 'Anggota, Keluarga, Kematian, Iuran, Kas, Users, dll.' },
-                  { label: 'Google Apps Script (GAS) RPC', status: 'PASS', detail: 'Timeout handled, Idempotency keys, CORS header' },
+                  { label: 'Vercel Serverless API Gateway', status: 'PASS', detail: 'Timeout handled, Idempotency keys, CORS header' },
                   { label: 'Role-Based Access Control (RBAC)', status: 'PASS', detail: '5 Role: Anggota, Pengurus, Ketua, Admin, Super Admin' },
                   { label: 'Financial Integrity Guard', status: 'PASS', detail: 'cleanNominal > 0, Idempotency, Anti-Double Claim' },
                   { label: 'React Error Boundary', status: 'PASS', detail: 'SijakaErrorBoundary active with graceful fallback' },

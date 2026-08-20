@@ -95,7 +95,7 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
           </div>
           <h2 className="text-xl font-bold mt-1.5">Struktur Database Google Sheets SIJAKA</h2>
           <p className="text-xs text-slate-300 mt-0.5">
-            Mewakili 4 Sheet utama: 'Anggota', 'Kematian', 'Iuran', dan 'BukuKas' yang dikelola oleh backend Apps Script Code.gs.
+            Mewakili skema Google Sheets yang disinkronkan melalui layer Vercel Serverless API SIJAKA.
           </p>
         </div>
 

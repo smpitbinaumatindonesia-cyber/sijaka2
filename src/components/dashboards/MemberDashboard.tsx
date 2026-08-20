@@ -5,21 +5,13 @@ import {
   AlertTriangle, 
   DollarSign, 
   Users, 
-  Heart, 
   UserPlus, 
-  FileText, 
-  Calendar, 
-  Clock, 
   CheckCircle2, 
   CreditCard,
   Edit2,
-  PhoneCall,
-  Sparkles,
-  ChevronRight,
-  UserCheck
+  ChevronRight
 } from 'lucide-react';
 import { MemberStatusType, ActivityItem } from '../../services/dashboardService';
-import { ProgressIuranPanel } from '../ProgressIuranPanel';
 import { Anggota, KeluargaMember, IuranRecord, KematianRecord } from '../../types';
 
 interface MemberDashboardProps {
@@ -44,7 +36,6 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
   activeAnggota,
   keluargaList,
   iuranList,
-  kematianList,
   memberStatus,
   onStatusChange,
   onOpenLaporKematian,
@@ -53,35 +44,30 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
   onOpenEditKeluarga,
   onOpenEditAnggota,
   onSelectSubTab,
-  activities,
   allAnggota,
   onSelectAnggotaId
 }) => {
   const memberName = activeAnggota?.nama || 'Ahmad S.';
   const memberId = activeAnggota?.id || 'ANG-001';
   const memberNik = activeAnggota?.nik || '3507041205800001';
-  const memberPhone = activeAnggota?.no_hp || '081234567890';
-  const memberAddress = activeAnggota?.alamat || 'Perum GPA Blok C-12, RT 06';
 
   // Member-specific filtered family and iuran records
   const myFamily = keluargaList.filter(k => k.id_anggota?.toUpperCase() === memberId.toUpperCase());
   const myIuran = iuranList.filter(i => i.id_anggota?.toUpperCase() === memberId.toUpperCase());
-  const myKematian = kematianList.filter(k => k.id_anggota?.toUpperCase() === memberId.toUpperCase());
 
   // Count months paid in 2026
   const monthsPaid2026 = myIuran.filter(i => (i.bulan_tahun || '').includes('2026')).length;
   const totalMonthsTarget = 12;
   const progressPercent = Math.min(100, Math.round((monthsPaid2026 / totalMonthsTarget) * 100));
 
-  // Determine semantic color and status label
   const isActive = memberStatus === 'active';
   const isRenewal = memberStatus === 'renewal';
-  const isExpired = memberStatus === 'expired';
 
   const getStatusBadge = () => {
     if (isActive) {
       return {
-        label: 'Aktif',
+        label: 'Terlindungi Aktif',
+        subtext: 'Hak santunan Rp 2,5jt untuk 1 KK berlaku penuh',
         color: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
         dot: 'bg-emerald-400',
         icon: ShieldCheck
@@ -90,13 +76,15 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
     if (isRenewal) {
       return {
         label: 'Perlu Perpanjangan',
+        subtext: 'Ada iuran kas tertunda untuk periode berjalan',
         color: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
         dot: 'bg-amber-400',
         icon: AlertTriangle
       };
     }
     return {
-      label: 'Nonaktif',
+      label: 'Status Tertunda',
+      subtext: 'Silakan konfirmasi iuran kas kepada pengurus',
       color: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
       dot: 'bg-rose-400',
       icon: ShieldAlert
@@ -107,88 +95,48 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
   const StatusIcon = statusBadge.icon;
 
   return (
-    <div className="space-y-6 sm:space-y-8 font-sans animate-in fade-in duration-300">
+    <div className="space-y-8 font-sans max-w-6xl mx-auto animate-in fade-in duration-300">
       
-      {/* 1. PERSONAL WELCOME HERO */}
-      <div className={`relative rounded-3xl p-6 sm:p-8 lg:p-9 border shadow-xl overflow-hidden transition-all duration-300 ${
-        isRenewal 
-          ? 'bg-[#0B1428] border-amber-500/40 text-white' 
-          : isExpired 
-          ? 'bg-[#0B1428] border-rose-500/40 text-white' 
-          : 'bg-[#0B1428] border-slate-800/80 text-white'
-      }`}>
-        {/* Glow */}
-        <div className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none opacity-15 ${
-          isRenewal ? 'bg-amber-500' : isExpired ? 'bg-rose-500' : 'bg-emerald-500'
-        }`}></div>
-
-        <div className="relative z-10 space-y-5">
-          
-          {/* Top Row: Salam & Account Selector */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
-            <div className="space-y-0.5">
-              <span className="text-xs text-slate-400 font-medium">Assalamu’alaikum warahmatullahi wabarakatuh</span>
-              <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-                <span>Selamat Datang, Bapak/Ibu {memberName}</span>
-                <span>👋</span>
-              </h1>
-            </div>
-
-            {/* Quick Switcher for Simulation Testing */}
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">Pilih KK:</span>
-              <select
-                value={memberId}
-                onChange={(e) => onSelectAnggotaId(e.target.value)}
-                className="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {allAnggota.map(a => (
-                  <option key={a.id} value={a.id}>
-                    {a.id} - {a.nama}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Subtitles */}
+      {/* 1. WELCOME HERO RINGKAS (Konteks Cepat & Jelas dalam 3 Detik) */}
+      <div className="rounded-3xl p-6 sm:p-8 bg-[#0B1428] border border-slate-800 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <div className="space-y-1">
-            <div className="text-sm sm:text-base font-bold text-blue-400 tracking-wide uppercase">
-              DASHBOARD ANGGOTA SIJAKA
-            </div>
-            <div className="text-xs text-slate-400 font-medium">
-              Sistem Informasi Jaminan Kematian • Jamaah Tahlil Ar Rohman • RT 06 • RT 07 • RT 10 — Perum GPA Ngijo
-            </div>
-          </div>
-
-          {/* Narrative Body */}
-          <div className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-4xl space-y-2">
-            <p>
-              Selamat datang di ruang layanan anggota SIJAKA. Pantau status keanggotaan, iuran, jaminan kematian, dan riwayat pelayanan Anda dengan mudah, aman, tertib, dan transparan.
-            </p>
-            <p className="text-slate-400 text-xs italic">
-              SIJAKA hadir sebagai wujud kepedulian dan semangat ta’awun untuk saling membantu dan menguatkan sesama anggota serta keluarga.
+            <span className="text-xs text-slate-400 font-medium">Assalamu’alaikum warahmatullahi wabarakatuh</span>
+            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+              Selamat Datang, Bapak/Ibu {memberName}
+            </h1>
+            <p className="text-xs text-slate-400">
+              Jamaah Tahlil Ar Rohman • RT 06 • RT 07 • RT 10 — Perum GPA Ngijo
             </p>
           </div>
 
-          {/* Tagline */}
-          <div className="pt-1 flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-            <span className="font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-              Semboyan Jamaah:
-            </span>
-            <span className="font-semibold text-slate-200">
-              “Bersama dalam Kepedulian, Saling Menguatkan dalam Kebersamaan.”
-            </span>
+          {/* Quick Member Switcher */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400 font-medium hidden sm:inline">Pilih KK:</span>
+            <select
+              value={memberId}
+              onChange={(e) => onSelectAnggotaId(e.target.value)}
+              className="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {allAnggota.map(a => (
+                <option key={a.id} value={a.id}>
+                  {a.id} - {a.nama}
+                </option>
+              ))}
+            </select>
           </div>
-
         </div>
+
+        <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-3xl">
+          Pantau status perlindungan keluarga, catatan iuran gotong royong, dan akses layanan santunan jaminan kematian dengan aman dan transparan.
+        </p>
       </div>
 
-      {/* 2. MEMBER STATUS AREA (Visual Priority: 1. Status Kepesertaan, 2. Progress Iuran, 3. Pembayaran Berikutnya) */}
+      {/* 2. MAKSIMAL 3 KPI UTAMA ANGGOTA (Prioritas Visual Tinggi) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        {/* Card 1: Status Kepesertaan */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800/80 shadow-sm space-y-3">
+        {/* KPI 1: Status Kepesertaan */}
+        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-400">Status Kepesertaan</span>
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusBadge.color}`}>
@@ -202,16 +150,15 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
               <StatusIcon className={`w-6 h-6 ${
                 isActive ? 'text-emerald-400' : isRenewal ? 'text-amber-400' : 'text-rose-400'
               }`} />
-              <span>{isActive ? 'Terlindungi Penuh' : isRenewal ? 'Perlu Diselesaikan' : 'Tertunda'}</span>
+              <span>{isActive ? 'Terlindungi Penuh' : isRenewal ? 'Perlu Diperbarui' : 'Tertunda'}</span>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Hak santunan Rp 2.500.000 mencakup seluruh keluarga terdaftar dalam KK.
+              {statusBadge.subtext}
             </p>
           </div>
 
-          {/* Simulator status buttons */}
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-            <span className="text-slate-400">Simulasi Status:</span>
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Simulasi Status:</span>
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => onStatusChange('active')} 
@@ -229,10 +176,10 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
           </div>
         </div>
 
-        {/* Card 2: Progress Iuran */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800/80 shadow-sm space-y-3">
+        {/* KPI 2: Progress Iuran 2026 */}
+        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Progress Iuran Tahun 2026</span>
+            <span className="text-xs font-semibold text-slate-400">Progress Iuran 2026</span>
             <span className="text-xs font-bold text-blue-400 font-mono">
               {monthsPaid2026} / {totalMonthsTarget} Bulan
             </span>
@@ -240,7 +187,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
 
           <div>
             <div className="text-2xl font-black text-white font-mono">
-              {progressPercent}% <span className="text-xs font-normal text-slate-400">Tercatat</span>
+              {progressPercent}% <span className="text-xs font-normal text-slate-400">Lunas</span>
             </div>
             <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden mt-2 border border-slate-800">
               <div 
@@ -250,91 +197,98 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-            <span className="text-slate-400">Iuran Rutin:</span>
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>Iuran Rutin:</span>
             <span className="font-bold text-white font-mono">Rp 50.000 / Bulan</span>
           </div>
         </div>
 
-        {/* Card 3: Pembayaran Berikutnya */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800/80 shadow-sm space-y-3">
+        {/* KPI 3: Pembayaran Berikutnya & Tanggungan */}
+        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Iuran Berikutnya</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
-              Rutin
+            <span className="text-xs font-semibold text-slate-400">Tanggungan Terdaftar</span>
+            <span className="text-xs font-bold text-purple-300 font-mono">
+              {myFamily.length + 1} Jiwa
             </span>
           </div>
 
           <div>
-            <div className="text-2xl font-black text-emerald-400 font-mono">
-              Rp 100.000
+            <div className="text-2xl font-black text-white">
+              1 KK + {myFamily.length} Anggota
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Estimasi iuran periode 2 bulan berikutnya.
+              Hak santunan Rp 2.500.000 berlaku per anggota KK
             </p>
           </div>
 
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
             <button
               onClick={onOpenInputIuran}
-              className="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm"
+              className="w-full py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all min-h-[36px]"
             >
               <CreditCard className="w-3.5 h-3.5" />
-              <span>Bayar / Konfirmasi Iuran</span>
+              <span>Konfirmasi Pembayaran Iuran</span>
             </button>
           </div>
         </div>
 
       </div>
 
-      {/* 3. KPI PRIBADI */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 rounded-2xl bg-[#0B1428] border border-slate-800/80">
-          <div className="text-[11px] text-slate-400 font-semibold">Tanggungan Terdaftar</div>
-          <div className="text-xl sm:text-2xl font-black text-white mt-1">
-            {myFamily.length + 1} Jiwa
-          </div>
-          <div className="text-[10px] text-blue-400 mt-0.5">1 KK + {myFamily.length} Anggota</div>
-        </div>
+      {/* 3. LAYANAN CEPAT ANGGOTA (Aksi Prioritas) */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-3">
+        <h3 className="font-bold text-white text-sm">Layanan Mandiri Anggota</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            onClick={onOpenLaporKematian}
+            className="p-3.5 rounded-xl bg-rose-950/40 hover:bg-rose-950/60 border border-rose-500/30 text-left flex items-center gap-3 transition-all group min-h-[48px]"
+          >
+            <div className="w-9 h-9 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-rose-300">Lapor Kematian / Musibah</div>
+              <div className="text-[11px] text-slate-400">Pengajuan santunan & pemulasaraan</div>
+            </div>
+          </button>
 
-        <div className="p-4 rounded-2xl bg-[#0B1428] border border-slate-800/80">
-          <div className="text-[11px] text-slate-400 font-semibold">Total Iuran Tercatat</div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-400 mt-1 font-mono">
-            {myIuran.length}x Setor
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Riwayat Pembayaran</div>
-        </div>
+          <button
+            onClick={onOpenInputIuran}
+            className="p-3.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/60 border border-emerald-500/30 text-left flex items-center gap-3 transition-all group min-h-[48px]"
+          >
+            <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+              <DollarSign className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-emerald-300">Pembayaran Iuran Kas</div>
+              <div className="text-[11px] text-slate-400">Konfirmasi setoran iuran rutin</div>
+            </div>
+          </button>
 
-        <div className="p-4 rounded-2xl bg-[#0B1428] border border-slate-800/80">
-          <div className="text-[11px] text-slate-400 font-semibold">Nilai Hak Santunan</div>
-          <div className="text-xl sm:text-2xl font-black text-amber-400 mt-1">
-            Rp 2,5 Juta
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Per Peristiwa Kematian</div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-[#0B1428] border border-slate-800/80">
-          <div className="text-[11px] text-slate-400 font-semibold">Status Pengajuan</div>
-          <div className="text-xl sm:text-2xl font-black text-purple-400 mt-1">
-            {myKematian.length > 0 ? `${myKematian.length} Klaim` : 'Nihil'}
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Alhamdulillah Nihil</div>
+          <button
+            onClick={onOpenTambahKeluarga}
+            className="p-3.5 rounded-xl bg-blue-950/40 hover:bg-blue-950/60 border border-blue-500/30 text-left flex items-center gap-3 transition-all group min-h-[48px]"
+          >
+            <div className="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+              <UserPlus className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white group-hover:text-blue-300">Tambah Anggota Keluarga</div>
+              <div className="text-[11px] text-slate-400">Daftarkan tanggungan dalam KK</div>
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* 4. PROGRESS & RIWAYAT IURAN PRIBADI */}
+      {/* 4. DETAIL RINGKAS: RIWAYAT IURAN & KELUARGA TERDAFTAR */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Riwayat Pembayaran */}
         <div className="lg:col-span-7">
-          <div className="bg-[#0B1428] border border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div className="bg-[#0B1428] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-sm">Riwayat Pembayaran Iuran Saya</h3>
-                  <p className="text-[11px] text-slate-400">Catatan transaksi iuran KK {memberName}</p>
-                </div>
+                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <h3 className="font-bold text-white text-sm">Riwayat Pembayaran Iuran Saya</h3>
               </div>
 
               <button
@@ -347,19 +301,17 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             </div>
 
             {myIuran.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800/60">
+              <div className="py-6 text-center text-xs text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800/60">
                 Belum ada riwayat pembayaran yang tercatat untuk akun ini.
               </div>
             ) : (
               <div className="space-y-2">
                 {myIuran.slice(0, 4).map((item, idx) => (
-                  <div key={item.id_iuran || idx} className="p-3 rounded-xl bg-slate-900/50 border border-slate-800/80 flex items-center justify-between text-xs">
+                  <div key={item.id_iuran || idx} className="p-3 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between text-xs">
                     <div className="space-y-0.5">
                       <div className="font-bold text-white">{item.bulan_tahun || 'Iuran Bulanan'}</div>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-2">
-                        <span>{item.tanggal || 'Terverifikasi'}</span>
-                        <span>•</span>
-                        <span>{item.keterangan || 'Iuran Rutin'}</span>
+                      <div className="text-[11px] text-slate-400">
+                        {item.tanggal || 'Terverifikasi'} • {item.keterangan || 'Iuran Rutin'}
                       </div>
                     </div>
 
@@ -379,27 +331,21 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
           </div>
         </div>
 
-        {/* 5. KELUARGA TERDAFTAR */}
+        {/* Susunan Keluarga KK */}
         <div className="lg:col-span-5">
-          <div className="bg-[#0B1428] border border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div className="bg-[#0B1428] border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
-                  <Users className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-sm">Anggota Keluarga (KK)</h3>
-                  <p className="text-[11px] text-slate-400">Tanggungan yang tercakup hak santunan</p>
-                </div>
+                <Users className="w-4 h-4 text-blue-400" />
+                <h3 className="font-bold text-white text-sm">Anggota Keluarga (KK)</h3>
               </div>
 
               <button
                 onClick={onOpenTambahKeluarga}
-                className="p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 transition-all"
-                title="Tambah Anggota Keluarga"
+                className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1 transition-all"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Tambah</span>
+                <span>Tambah</span>
               </button>
             </div>
 
@@ -408,7 +354,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
               <div className="space-y-0.5">
                 <div className="font-bold text-white flex items-center gap-1.5">
                   <span>{memberName}</span>
-                  <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
                     Kepala Keluarga
                   </span>
                 </div>
@@ -427,12 +373,12 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             {/* Family members list */}
             {myFamily.length === 0 ? (
               <div className="py-4 text-center text-xs text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800/60">
-                Belum ada anggota keluarga tambahan. Klik "Tambah" untuk mendaftarkan istri / anak.
+                Belum ada anggota keluarga tambahan terdaftar.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-[180px] overflow-y-auto">
                 {myFamily.map((fam) => (
-                  <div key={fam.id} className="p-3 rounded-xl bg-slate-900/50 border border-slate-800/80 flex items-center justify-between text-xs">
+                  <div key={fam.id} className="p-2.5 rounded-xl bg-slate-900/50 border border-slate-800 flex items-center justify-between text-xs">
                     <div className="space-y-0.5">
                       <div className="font-bold text-white flex items-center gap-1.5">
                         <span>{fam.nama}</span>
@@ -440,7 +386,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
                           {fam.hubungan}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono">NIK: {fam.nik || '-'}</div>
+                      <div className="text-[10px] text-slate-400 font-mono">NIK: {fam.nik || '-'}</div>
                     </div>
 
                     <button
@@ -456,51 +402,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({
             )}
           </div>
         </div>
-      </div>
 
-      {/* 6. QUICK ACTIONS RELEVAN (Hanya aksi yang diizinkan untuk Anggota) */}
-      <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800/80 space-y-3">
-        <h3 className="font-bold text-white text-sm">Layanan Cepat Anggota</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button
-            onClick={onOpenLaporKematian}
-            className="p-3.5 rounded-xl bg-rose-950/40 hover:bg-rose-950/60 border border-rose-500/30 text-left flex items-center gap-3 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-rose-300">Lapor Kematian / Musibah</div>
-              <div className="text-[11px] text-slate-400">Klaim santunan Rp 2,5jt & pemulasaraan</div>
-            </div>
-          </button>
-
-          <button
-            onClick={onOpenInputIuran}
-            className="p-3.5 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/60 border border-emerald-500/30 text-left flex items-center gap-3 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-              <DollarSign className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-emerald-300">Pembayaran Iuran Kas</div>
-              <div className="text-[11px] text-slate-400">Konfirmasi pembayaran kas rutin</div>
-            </div>
-          </button>
-
-          <button
-            onClick={onOpenTambahKeluarga}
-            className="p-3.5 rounded-xl bg-blue-950/40 hover:bg-blue-950/60 border border-blue-500/30 text-left flex items-center gap-3 transition-all group"
-          >
-            <div className="w-9 h-9 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-              <UserPlus className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-white group-hover:text-blue-300">Tambah Anggota Keluarga</div>
-              <div className="text-[11px] text-slate-400">Daftarkan tanggungan dalam KK</div>
-            </div>
-          </button>
-        </div>
       </div>
 
     </div>

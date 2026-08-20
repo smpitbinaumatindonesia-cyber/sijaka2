@@ -182,7 +182,8 @@ export interface FonnteConfig {
   autoBroadcast: boolean;
   spreadsheetId?: string;
   spreadsheetUrl?: string;
-  gasExecUrl?: string;
+  apiUrl?: string;
+  gasExecUrl?: string; // deprecated alias
   environment?: 'production' | 'staging' | 'development';
 }
 
