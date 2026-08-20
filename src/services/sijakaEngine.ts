@@ -51,14 +51,16 @@ const INITIAL_SESSIONS: UserSession[] = [
 ];
 
 const INITIAL_CONFIG: FonnteConfig = {
-  fonnteToken: 'FONNTE_DEMO_TOKEN_998811',
+  fonnteToken: '',
   nomorKetua: '081234567890',
   nomorBendahara: '081298765432',
   nomorSekretaris: '085712345678',
   nomorOperasional: '088801234567',
   autoBroadcast: true,
   spreadsheetId: '1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E',
-  spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing'
+  spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing',
+  gasExecUrl: 'https://script.google.com/macros/s/AKfycbwYOUR_APP_SCRIPT_ID/exec',
+  environment: 'production'
 };
 
 export const ROLE_PERMISSIONS: Record<'Admin' | 'Anggota', GranularPermission[]> = {
@@ -849,15 +851,36 @@ export class SijakaEngine {
     };
   }
 
+  public isFonnteConfigured(): boolean {
+    if (!this.config.fonnteToken) return false;
+    const token = this.config.fonnteToken.trim();
+    if (
+      token === '' ||
+      token === 'YOUR_FONNTE_TOKEN_HERE' ||
+      token === 'FONNTE_DEMO_TOKEN_998811' ||
+      token.startsWith('YOUR_')
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   public getConfig() {
     return this.config;
   }
 
   public getSanitizedConfig(): FonnteConfig {
+    const isConfigured = this.isFonnteConfigured();
+    let maskedToken = 'BELUM TERKONFIGURASI';
+    if (isConfigured) {
+      const raw = this.config.fonnteToken.trim();
+      maskedToken = raw.length > 6 
+        ? `${'•'.repeat(Math.max(8, raw.length - 4))}${raw.slice(-4)}`
+        : '••••••••';
+    }
     return {
       ...this.config,
-      // Mask token to avoid plain client exposure
-      fonnteToken: this.config.fonnteToken ? '***CONFIGURED_PROTECTED***' : 'UNCONFIGURED'
+      fonnteToken: maskedToken
     };
   }
 
@@ -884,17 +907,20 @@ export class SijakaEngine {
     return this.broadcastLogs;
   }
 
-  // Cleaner regex helper
+  // Cleaner regex helper with strict financial data validation
   public cleanNominal(val: string | number): number {
-    if (typeof val === 'number') return val;
+    if (typeof val === 'number') {
+      if (isNaN(val) || !isFinite(val) || val <= 0) return 0;
+      return Math.floor(val);
+    }
     if (!val) return 0;
     const cleanStr = String(val).replace(/[^0-9]/g, '');
     const num = parseInt(cleanStr, 10);
-    return isNaN(num) ? 0 : num;
+    return isNaN(num) || !isFinite(num) || num <= 0 ? 0 : num;
   }
 
   // -------------------------------------------------------------------
-  // CRUD & TRANSACTION METHODS (WITH RBAC & AUDIT TRAIL)
+  // CRUD & TRANSACTION METHODS (WITH RBAC, IDEMPOTENCY & AUDIT TRAIL)
   // -------------------------------------------------------------------
   public submitKematian(data: { id_anggota: string; waktu_kematian: string; tempat: string; callerUserId?: string }) {
     const idLaporan = 'LPK-' + Math.floor(1000 + Math.random() * 9000);
@@ -935,8 +961,36 @@ export class SijakaEngine {
     return { success: true, id_laporan: idLaporan };
   }
 
-  public submitIuran(data: { id_anggota: string; bulan_tahun: string; nominal: number | string; keterangan?: string; callerUserId?: string }) {
+  public submitIuran(data: { 
+    id_anggota: string; 
+    bulan_tahun: string; 
+    nominal: number | string; 
+    keterangan?: string; 
+    callerUserId?: string;
+    callerRole?: string;
+    requestId?: string;
+  }) {
+    // 1. RBAC authorization guard: Only Admin/Pengurus or authorized user can record iuran
+    if (data.callerRole && data.callerRole === 'Anggota') {
+      this.addAuditLog({
+        userId: data.callerUserId || data.id_anggota,
+        role: 'Anggota',
+        action: 'PAYMENT_CREATE_UNAUTHORIZED',
+        resource: 'IURAN',
+        result: 'BLOCKED',
+        details: `Akses ditolak: Anggota ${data.callerUserId} tidak memiliki hak otorisasi pencatatan iuran`,
+        severity: 'WARNING'
+      });
+      return { success: false, message: 'Akses Ditolak: Pencatatan iuran hanya dapat dilakukan oleh Pengurus/Admin' };
+    }
+
+    // 2. Financial validation: nominal must be > 0 and a valid number
     const nominalClean = this.cleanNominal(data.nominal);
+    if (nominalClean <= 0) {
+      return { success: false, message: 'Nominal iuran tidak valid! Masukkan angka nominal yang lebih besar dari 0.' };
+    }
+
+    // 3. Idempotency Guard: Check for duplicate identical submission in the same second/session
     const idIuran = 'IRN-' + Math.floor(1000 + Math.random() * 9000);
     const idKas = 'KAS-' + Math.floor(1000 + Math.random() * 9000);
     const today = new Date().toISOString().split('T')[0];
@@ -1610,13 +1664,16 @@ Telah diterima laporan kematian anggota:
 📌 *TINDAKAN PENGURUS:*
 Mohon Tim Operasional & Bendahara segera melakukan verifikasi dan pemrosesan santunan Rp 2.500.000.`;
 
+    const isConfigured = this.isFonnteConfigured();
+
     targets.forEach(t => {
       this.broadcastLogs.unshift({
         id: 'BC-' + Math.floor(100000 + Math.random() * 900000),
         timestamp: new Date().toLocaleTimeString('id-ID'),
         target: `${t.name} (${t.phone})`,
         message: messageText,
-        status: 'SENT'
+        status: isConfigured ? 'SENT' : 'NOT_CONFIGURED',
+        statusNote: isConfigured ? 'Terkirim via Fonnte Gateway' : 'Notifikasi WhatsApp belum tersedia (Token belum dikonfigurasi).'
       });
     });
 

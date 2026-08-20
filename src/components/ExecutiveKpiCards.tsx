@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Users, 
   HeartHandshake, 
@@ -13,14 +13,14 @@ interface ExecutiveKpiCardsProps {
   kasMasukTotal: number;
 }
 
-export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, kasMasukTotal }) => {
+export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics }) => {
   const [activeKpiIndex, setActiveKpiIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = () => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, offsetWidth } = scrollContainerRef.current;
-      const cardWidth = 165; // average width of snap items
+      const { scrollLeft } = scrollContainerRef.current;
+      const cardWidth = 165;
       const newIndex = Math.round(scrollLeft / cardWidth);
       setActiveKpiIndex(Math.min(Math.max(0, newIndex), 3));
     }
@@ -34,7 +34,6 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
       growthText: `+${metrics.totalMembersGrowth} (+3,2%)`,
       icon: Users,
       color: 'blue',
-      gradient: 'from-blue-600 to-indigo-500',
       textColor: 'text-blue-400',
       badgeText: '83% Terdaftar',
       stroke: '#3B82F6',
@@ -48,7 +47,6 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
       growthText: 'Rp 215 jt keluar',
       icon: HeartHandshake,
       color: 'purple',
-      gradient: 'from-purple-600 to-indigo-500',
       textColor: 'text-purple-400',
       badgeText: '100% Selesai',
       stroke: '#8B5CF6',
@@ -62,10 +60,9 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
       growthText: '+8,4% vs lalu',
       icon: DollarSign,
       color: 'emerald',
-      gradient: 'from-emerald-600 to-teal-500',
       textColor: 'text-emerald-400',
       badgeText: 'Kas Solven',
-      stroke: '#00D995',
+      stroke: '#10B981',
       dotColor: '#34D399',
       path: 'M 0 20 Q 25 15, 50 16 T 75 8 T 100 2'
     },
@@ -76,7 +73,6 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
       growthText: 'Verifikasi Berkas',
       icon: Clock,
       color: 'amber',
-      gradient: 'from-amber-500 to-yellow-500',
       textColor: 'text-amber-400',
       badgeText: '< 24 Jam',
       stroke: '#F59E0B',
@@ -100,26 +96,24 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
             return (
               <div
                 key={item.id}
-                className="w-[160px] min-w-[155px] max-w-[165px] h-[120px] bg-[#0B1428] border border-slate-800 rounded-2xl p-3.5 shadow-lg relative overflow-hidden flex flex-col justify-between snap-center shrink-0"
+                className="w-[160px] min-w-[155px] max-w-[165px] h-[115px] bg-[#0B1428] border border-slate-800/80 rounded-xl p-3.5 shadow-sm relative overflow-hidden flex flex-col justify-between snap-center shrink-0"
               >
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${item.gradient}`}></div>
-                
                 <div className="flex items-start justify-between gap-1">
                   <div className="space-y-0.5 truncate">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block truncate">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block truncate">
                       {item.title}
                     </span>
                     <div className="text-xl font-black text-white tracking-tight leading-tight">
                       {item.value}
                     </div>
                   </div>
-                  <div className={`w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-800 ${item.textColor} shrink-0`}>
-                    <Icon className="w-3.5 h-3.5 stroke-[2.2]" />
+                  <div className={`w-6 h-6 bg-slate-900 rounded-lg flex items-center justify-center border border-slate-800 ${item.textColor} shrink-0`}>
+                    <Icon className="w-3.5 h-3.5 stroke-[2]" />
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-slate-800/80">
-                  <span className={`font-semibold flex items-center gap-0.5 ${item.textColor} truncate`}>
+                  <span className={`font-medium flex items-center gap-0.5 ${item.textColor} truncate`}>
                     <TrendingUp className="w-3 h-3 shrink-0" />
                     <span className="truncate">{item.growthText}</span>
                   </span>
@@ -136,7 +130,7 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
               key={idx}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 activeKpiIndex === idx 
-                  ? 'w-4 bg-emerald-400' 
+                  ? 'w-4 bg-blue-500' 
                   : 'w-1.5 bg-slate-700'
               }`}
             />
@@ -148,27 +142,26 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
       <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         
         {/* 1. TOTAL ANGGOTA (Blue) */}
-        <div className="bg-[#0B1428] border border-slate-800 hover:border-blue-500/40 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden group transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-500"></div>
+        <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                 TOTAL ANGGOTA
               </span>
               <div className="text-2xl sm:text-[28px] font-black text-white tracking-tight font-sans">
                 1.248
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold pt-0.5">
+              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium pt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>+{metrics.totalMembersGrowth} (+3,2% thn ini)</span>
               </div>
             </div>
-            <div className="w-11 h-11 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center border border-blue-500/20 group-hover:scale-105 transition-transform shrink-0">
-              <Users className="w-5 h-5 stroke-[2.2]" />
+            <div className="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center border border-blue-500/20 shrink-0">
+              <Users className="w-5 h-5 stroke-[2]" />
             </div>
           </div>
 
-          {/* Real SVG Mini Sparkline */}
+          {/* SVG Mini Sparkline */}
           <div className="mt-3.5 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
             <div className="w-20 h-5">
               <svg className="w-full h-full overflow-visible" viewBox="0 0 100 24">
@@ -176,38 +169,37 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
                   d="M 0 18 Q 20 16, 40 12 T 70 8 T 100 4"
                   fill="none"
                   stroke="#3B82F6"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 />
-                <circle cx="100" cy="4" r="3" fill="#60A5FA" />
+                <circle cx="100" cy="4" r="2.5" fill="#60A5FA" />
               </svg>
             </div>
-            <span className="text-[10px] text-blue-400 font-bold">83% Terdaftar</span>
+            <span className="text-[10px] text-blue-400 font-semibold">83% Terdaftar</span>
           </div>
         </div>
 
-        {/* 2. TOTAL SANTUNAN (Purple / Rose) */}
-        <div className="bg-[#0B1428] border border-slate-800 hover:border-purple-500/40 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden group transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-indigo-500"></div>
+        {/* 2. TOTAL SANTUNAN (Purple) */}
+        <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                 TOTAL SANTUNAN
               </span>
               <div className="text-2xl sm:text-[28px] font-black text-white tracking-tight font-sans">
                 86
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-purple-400 font-semibold pt-0.5">
+              <div className="flex items-center gap-1.5 text-[11px] text-purple-400 font-medium pt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Rp 215.000.000 tersalurkan</span>
               </div>
             </div>
-            <div className="w-11 h-11 bg-purple-500/10 text-purple-400 rounded-xl flex items-center justify-center border border-purple-500/20 group-hover:scale-105 transition-transform shrink-0">
-              <HeartHandshake className="w-5 h-5 stroke-[2.2]" />
+            <div className="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-xl flex items-center justify-center border border-purple-500/20 shrink-0">
+              <HeartHandshake className="w-5 h-5 stroke-[2]" />
             </div>
           </div>
 
-          {/* Real SVG Mini Sparkline */}
+          {/* SVG Mini Sparkline */}
           <div className="mt-3.5 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
             <div className="w-20 h-5">
               <svg className="w-full h-full overflow-visible" viewBox="0 0 100 24">
@@ -215,77 +207,75 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
                   d="M 0 20 Q 30 18, 50 14 T 80 12 T 100 6"
                   fill="none"
                   stroke="#8B5CF6"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 />
-                <circle cx="100" cy="6" r="3" fill="#A78BFA" />
+                <circle cx="100" cy="6" r="2.5" fill="#A78BFA" />
               </svg>
             </div>
-            <span className="text-[10px] text-purple-400 font-bold">100% Selesai</span>
+            <span className="text-[10px] text-purple-400 font-semibold">100% Selesai</span>
           </div>
         </div>
 
         {/* 3. TOTAL DANA IURAN (Emerald Green) */}
-        <div className="bg-[#0B1428] border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden group transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500"></div>
+        <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                 TOTAL DANA IURAN
               </span>
               <div className="text-2xl sm:text-[28px] font-black text-emerald-400 tracking-tight font-sans">
                 Rp 125,45 jt
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold pt-0.5">
+              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium pt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>+8,4% vs tahun lalu</span>
               </div>
             </div>
-            <div className="w-11 h-11 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/20 group-hover:scale-105 transition-transform shrink-0">
-              <DollarSign className="w-5 h-5 stroke-[2.2]" />
+            <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-500/20 shrink-0">
+              <DollarSign className="w-5 h-5 stroke-[2]" />
             </div>
           </div>
 
-          {/* Real SVG Mini Sparkline */}
+          {/* SVG Mini Sparkline */}
           <div className="mt-3.5 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
             <div className="w-20 h-5">
               <svg className="w-full h-full overflow-visible" viewBox="0 0 100 24">
                 <path
                   d="M 0 20 Q 25 15, 50 16 T 75 8 T 100 2"
                   fill="none"
-                  stroke="#00D995"
-                  strokeWidth="2.5"
+                  stroke="#10B981"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 />
-                <circle cx="100" cy="2" r="3" fill="#34D399" />
+                <circle cx="100" cy="2" r="2.5" fill="#34D399" />
               </svg>
             </div>
-            <span className="text-[10px] text-emerald-400 font-bold">Kas Solven</span>
+            <span className="text-[10px] text-emerald-400 font-semibold">Kas Solven</span>
           </div>
         </div>
 
-        {/* 4. PENGAJUAN AKTIF (Amber / Orange) */}
-        <div className="bg-[#0B1428] border border-slate-800 hover:border-amber-500/40 rounded-2xl p-4 sm:p-5 shadow-xl relative overflow-hidden group transition-all duration-300">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+        {/* 4. PENGAJUAN AKTIF (Amber) */}
+        <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                 PENGAJUAN AKTIF
               </span>
               <div className="text-2xl sm:text-[28px] font-black text-amber-400 tracking-tight font-sans">
                 7
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-semibold pt-0.5">
+              <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-medium pt-0.5">
                 <Clock className="w-3.5 h-3.5" />
                 <span>Verifikasi Berkas RT/RW</span>
               </div>
             </div>
-            <div className="w-11 h-11 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center border border-amber-500/20 group-hover:scale-105 transition-transform shrink-0">
-              <Clock className="w-5 h-5 stroke-[2.2]" />
+            <div className="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center border border-amber-500/20 shrink-0">
+              <Clock className="w-5 h-5 stroke-[2]" />
             </div>
           </div>
 
-          {/* Real SVG Mini Sparkline */}
+          {/* SVG Mini Sparkline */}
           <div className="mt-3.5 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
             <div className="w-20 h-5">
               <svg className="w-full h-full overflow-visible" viewBox="0 0 100 24">
@@ -293,13 +283,13 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics, k
                   d="M 0 14 Q 30 18, 50 10 T 80 12 T 100 8"
                   fill="none"
                   stroke="#F59E0B"
-                  strokeWidth="2.5"
+                  strokeWidth="2"
                   strokeLinecap="round"
                 />
-                <circle cx="100" cy="8" r="3" fill="#FCD34D" />
+                <circle cx="100" cy="8" r="2.5" fill="#FCD34D" />
               </svg>
             </div>
-            <span className="text-[10px] text-amber-400 font-bold">&lt; 24 Jam</span>
+            <span className="text-[10px] text-amber-400 font-semibold">&lt; 24 Jam</span>
           </div>
         </div>
 

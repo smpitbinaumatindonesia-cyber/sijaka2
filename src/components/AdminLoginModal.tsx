@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Lock, User, Eye, EyeOff, X, AlertCircle } from 'lucide-react';
 import { createPasswordHash, verifyPassword } from '../utils/crypto';
+
+import { SijakaRole } from '../types';
 
 export interface AdminAccount {
   id_user: string;
   username: string;
   passwordHash: string;
-  role: string;
+  role: SijakaRole;
   nama: string;
 }
 
@@ -23,23 +25,30 @@ export const ADMIN_ACCOUNTS: AdminAccount[] = [
     id_user: 'Ketua',
     username: 'Wardjo',
     passwordHash: createPasswordHash('Wardjo123', 'B2C3D4E5F6A17890'),
-    role: 'Admin',
-    nama: 'Ketua (Wardjo)'
+    role: 'Ketua',
+    nama: 'H. Wardjo (Ketua Jamaah)'
   },
   {
     id_user: 'Bend1',
     username: 'Imam',
     passwordHash: createPasswordHash('Imam123', 'C3D4E5F6A1B27890'),
-    role: 'Admin',
-    nama: 'Bendahara 1 (Imam)'
+    role: 'Pengurus',
+    nama: 'Imam S. (Bendahara 1)'
   },
   {
     id_user: 'Bend2',
     username: 'Dino',
     passwordHash: createPasswordHash('Dino123', 'D4E5F6A1B2C37890'),
-    role: 'Admin',
-    nama: 'Bendahara 2 (Dino)'
+    role: 'Pengurus',
+    nama: 'Dino P. (Pengurus Operasional)'
   },
+  {
+    id_user: 'ANG-001',
+    username: 'ahmad',
+    passwordHash: createPasswordHash('ahmad123', 'E5F6A1B2C3D47890'),
+    role: 'Anggota',
+    nama: 'Ahmad Subagyo (Anggota / KK)'
+  }
 ];
 
 interface AdminLoginModalProps {
@@ -57,6 +66,16 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   const [passwordInput, setPasswordInput] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

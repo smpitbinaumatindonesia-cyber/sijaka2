@@ -22,15 +22,15 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { sijakaEngine, ROLE_PERMISSIONS } from '../services/sijakaEngine';
-import { AuditLogEntry, BackupRecord, ReconciliationResult, SecurityTestResult, UserSession } from '../types';
+import { AuditLogEntry, BackupRecord, ReconciliationResult, SecurityTestResult, UserSession, SijakaRole } from '../types';
 
 interface SecurityControlCenterProps {
-  userRole: 'Admin' | 'Anggota';
+  userRole?: SijakaRole;
   onRequestAdminLogin: () => void;
 }
 
 export const SecurityControlCenter: React.FC<SecurityControlCenterProps> = ({
-  userRole,
+  userRole = 'Admin',
   onRequestAdminLogin
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'suite' | 'reconciliation' | 'audit' | 'backups' | 'sessions'>('suite');
@@ -144,6 +144,44 @@ export const SecurityControlCenter: React.FC<SecurityControlCenterProps> = ({
   const passedTestsCount = testResults.filter(t => t.status === 'PASSED').length;
   const totalTestsCount = testResults.length;
   const securityScore = totalTestsCount > 0 ? Math.round((passedTestsCount / totalTestsCount) * 100) : 100;
+
+  // Direct route RBAC protection
+  if (userRole !== 'Admin' && userRole !== 'Super Admin') {
+    return (
+      <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-center space-y-6 p-8 relative">
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-red-500 via-amber-500 to-indigo-600"></div>
+          
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2 max-w-lg mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-800 text-xs font-bold">
+              <Lock className="w-3.5 h-3.5 text-red-600" />
+              <span>Akses Terbatas • Khusus Admin / Super Admin</span>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+              Security & Operational Control Center
+            </h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Pusat kendali audit trail, rekonsiliasi kas otomatis, manajemen snapshot backup, dan session hardening dikhususkan untuk <strong>Admin / Super Admin SIJAKA</strong>.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={onRequestAdminLogin}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-indigo-600 hover:from-red-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl font-extrabold text-xs transition-all shadow-lg shadow-red-900/20 hover:scale-105 active:scale-95"
+            >
+              <Key className="w-4 h-4" />
+              <span>Login sebagai Admin / Super Admin</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

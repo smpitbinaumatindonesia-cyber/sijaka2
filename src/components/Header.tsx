@@ -18,12 +18,14 @@ import {
   Lock
 } from 'lucide-react';
 
+import { SijakaRole } from '../types';
+
 interface HeaderProps {
   activeTab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings';
   setActiveTab: (tab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings') => void;
   onOpenSettings: () => void;
-  userRole?: 'Admin' | 'Anggota';
-  setUserRole?: (role: 'Admin' | 'Anggota') => void;
+  userRole?: SijakaRole;
+  setUserRole?: (role: SijakaRole) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -36,6 +38,12 @@ export const Header: React.FC<HeaderProps> = ({
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const [tempUrlInput, setTempUrlInput] = useState('');
+
+  // Strictly hide technical admin navigation ribbon for Anggota, Pengurus, and Ketua
+  const isAdmin = userRole === 'Admin' || userRole === 'Super Admin';
+  if (!isAdmin) {
+    return null;
+  }
 
   useEffect(() => {
     const savedLogo = localStorage.getItem('sijaka_custom_logo');
@@ -117,39 +125,31 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Right: Quick Role Pill & Direct Links */}
+          {/* Right: Quick Role Switcher for Admin Header & Direct Links */}
           <div className="flex items-center gap-2 text-xs font-semibold">
             {setUserRole && (
               <div className="flex items-center bg-slate-900/90 p-0.5 rounded-lg border border-slate-800">
                 <button
                   onClick={() => setUserRole('Anggota')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all ${
-                    userRole === 'Anggota'
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Akses Anggota Terbatas"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all text-slate-400 hover:text-slate-200"
+                  title="Beralih ke Tampilan Anggota"
                 >
                   <UserCheck className="w-3 h-3" />
-                  <span>Anggota</span>
+                  <span>Mode Anggota</span>
                 </button>
 
                 <button
                   onClick={() => setUserRole('Admin')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all ${
-                    userRole === 'Admin'
-                      ? 'bg-amber-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                  title="Akses Penuh Pengurus"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold transition-all bg-amber-600 text-white shadow-sm"
+                  title="Akses Penuh Pengurus / IT"
                 >
                   <ShieldCheck className="w-3 h-3" />
-                  <span>Admin</span>
+                  <span>Admin Utama</span>
                 </button>
               </div>
             )}
 
-            {userRole === 'Admin' && (
+            {isAdmin && (
               <a
                 href="https://docs.google.com/spreadsheets/d/1ZrYAwb8PTg-nTR-6H8HF3c9J130bnhwX-rElXrL-i5E/edit?usp=sharing"
                 target="_blank"

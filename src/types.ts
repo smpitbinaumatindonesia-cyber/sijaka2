@@ -1,16 +1,19 @@
+export type SijakaRole = 'Anggota' | 'Pengurus' | 'Ketua' | 'Admin' | 'Super Admin';
+
 export interface UserAccount {
   id_user: string;
   username: string;
   passwordHash?: string;
   password?: string;
-  role: 'Admin' | 'Anggota';
+  role: SijakaRole | 'Admin' | 'Anggota';
+  nama?: string;
 }
 
 export interface UserSession {
   session_id: string;
   user_id?: string;
   username: string;
-  role?: 'Admin' | 'Anggota';
+  role?: SijakaRole | 'Admin' | 'Anggota';
   created_at?: string;
   expires_at?: string;
   status?: 'ACTIVE' | 'REVOKED' | 'EXPIRED';
@@ -175,6 +178,8 @@ export interface FonnteConfig {
   autoBroadcast: boolean;
   spreadsheetId?: string;
   spreadsheetUrl?: string;
+  gasExecUrl?: string;
+  environment?: 'production' | 'staging' | 'development';
 }
 
 export interface ChatMessage {
@@ -193,5 +198,6 @@ export interface BroadcastLog {
   timestamp: string;
   target: string;
   message: string;
-  status: 'SENT' | 'FAILED';
+  status: 'SENT' | 'FAILED' | 'NOT_CONFIGURED';
+  statusNote?: string;
 }

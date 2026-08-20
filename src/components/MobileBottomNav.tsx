@@ -1,88 +1,105 @@
 import React from 'react';
 import { 
   Home, 
-  Users, 
+  DollarSign, 
   Plus, 
   FileText, 
   User, 
-  Heart,
-  DollarSign,
-  AlertTriangle
+  ShieldCheck,
+  Users
 } from 'lucide-react';
+import { SijakaRole } from '../types';
 
 interface MobileBottomNavProps {
   activeTab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings';
   setActiveTab: (tab: 'webApp' | 'waBot' | 'sheets' | 'code' | 'security' | 'settings') => void;
+  activeSubTab?: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan';
   onOpenQuickMenu: () => void;
+  onOpenProfile?: () => void;
   onSelectSubTab?: (subTab: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan') => void;
+  userRole?: SijakaRole;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   activeTab,
   setActiveTab,
+  activeSubTab,
   onOpenQuickMenu,
-  onSelectSubTab
+  onOpenProfile,
+  onSelectSubTab,
+  userRole = 'Anggota'
 }) => {
+  const isDashboardActive = activeTab === 'webApp' && !activeSubTab;
+  const isIuranActive = activeTab === 'webApp' && activeSubTab === 'iuran';
+  const isLaporanActive = activeTab === 'webApp' && activeSubTab === 'bukukas';
+
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-slate-950/95 border-t border-slate-800/90 backdrop-blur-xl shadow-2xl safe-area-pb">
+    <div className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-[#050A18]/95 border-t border-slate-800/80 backdrop-blur-md shadow-lg safe-area-pb">
       <div className="flex items-center justify-around px-2 py-2 relative">
         
         {/* 1. Dashboard */}
         <button
-          onClick={() => setActiveTab('webApp')}
+          onClick={() => {
+            setActiveTab('webApp');
+            if (onSelectSubTab) onSelectSubTab(undefined as any);
+          }}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-            activeTab === 'webApp' ? 'text-blue-400' : 'text-slate-400 hover:text-slate-200'
+            isDashboardActive ? 'text-blue-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Home className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1">Dashboard</span>
+          <span className="text-[10px] mt-1">Dashboard</span>
         </button>
 
-        {/* 2. Anggota */}
+        {/* 2. Iuran */}
         <button
           onClick={() => {
             setActiveTab('webApp');
-            if (onSelectSubTab) onSelectSubTab('anggota');
+            if (onSelectSubTab) onSelectSubTab('iuran');
           }}
-          className="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition-colors"
+          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
+            isIuranActive ? 'text-emerald-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
+          }`}
         >
-          <Users className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1">Anggota</span>
+          <DollarSign className="w-5 h-5" />
+          <span className="text-[10px] mt-1">Iuran</span>
         </button>
 
         {/* 3. Center Floating Circular '+' Button */}
-        <div className="flex-1 flex justify-center -mt-6">
+        <div className="flex-1 flex justify-center -mt-5">
           <button
             onClick={onOpenQuickMenu}
-            className="w-13 h-13 rounded-full bg-gradient-to-tr from-emerald-500 via-teal-500 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-emerald-950/80 border-4 border-slate-950 hover:scale-105 active:scale-95 transition-transform"
+            className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-md border-4 border-[#050A18] active:scale-95 transition-transform"
             title="Menu Aksi Cepat"
             aria-label="Aksi Cepat SIJAKA"
           >
-            <Plus className="w-6 h-6 stroke-[3]" />
+            <Plus className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 
-        {/* 4. Laporan / Buku Kas */}
+        {/* 4. Laporan */}
         <button
           onClick={() => {
             setActiveTab('webApp');
             if (onSelectSubTab) onSelectSubTab('bukukas');
           }}
-          className="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition-colors"
-        >
-          <FileText className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1">Laporan</span>
-        </button>
-
-        {/* 5. Akun / Security */}
-        <button
-          onClick={() => setActiveTab('security')}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-            activeTab === 'security' ? 'text-blue-400' : 'text-slate-400 hover:text-slate-200'
+            isLaporanActive ? 'text-purple-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
+          <FileText className="w-5 h-5" />
+          <span className="text-[10px] mt-1">Laporan</span>
+        </button>
+
+        {/* 5. Profil */}
+        <button
+          onClick={() => {
+            if (onOpenProfile) onOpenProfile();
+          }}
+          className="flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200 transition-colors"
+        >
           <User className="w-5 h-5" />
-          <span className="text-[10px] font-bold mt-1">Akun</span>
+          <span className="text-[10px] mt-1">Profil</span>
         </button>
 
       </div>

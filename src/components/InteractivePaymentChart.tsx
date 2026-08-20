@@ -45,13 +45,13 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
   const maxYearAmount = Math.max(...multiYearComparison.map(y => y.total), 220);
 
   return (
-    <div className="bg-[#0B1428] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl h-full flex flex-col justify-between">
+    <div className="bg-[#0B1428] border border-slate-800/80 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              <BarChart2 className="w-4 h-4 stroke-[2.2]" />
+            <span className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <BarChart2 className="w-4 h-4 stroke-[2]" />
             </span>
             <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
               RIWAYAT PEMBAYARAN IURAN
@@ -65,26 +65,26 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
         {/* View mode toggle & Year selector */}
         <div className="flex items-center gap-2.5 self-start sm:self-auto">
           {/* Toggle Bulan / Tahun */}
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+          <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs font-semibold">
             <button
               onClick={() => setViewMode('bulan')}
-              className={`px-3 py-1 rounded-lg transition-all text-xs font-bold ${
+              className={`px-3 py-1 rounded-md transition-all text-xs font-semibold ${
                 viewMode === 'bulan'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/50'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              BULAN
+              Bulan
             </button>
             <button
               onClick={() => setViewMode('tahun')}
-              className={`px-3 py-1 rounded-lg transition-all text-xs font-bold ${
+              className={`px-3 py-1 rounded-md transition-all text-xs font-semibold ${
                 viewMode === 'tahun'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/50'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              TAHUN
+              Tahun
             </button>
           </div>
 
@@ -94,11 +94,11 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
               <select
                 value={selectedYear}
                 onChange={(e) => onSelectYear(Number(e.target.value))}
-                className="appearance-none bg-slate-950 text-slate-200 border border-slate-800 hover:border-slate-700 px-3 py-1 pr-7 rounded-xl text-xs font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-sm"
+                className="appearance-none bg-slate-900 text-slate-200 border border-slate-800 hover:border-slate-700 px-3 py-1 pr-7 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer shadow-sm"
               >
-                <option value={2024}>2024 ▼</option>
-                <option value={2025}>2025 ▼</option>
-                <option value={2026}>2026 ▼</option>
+                <option value={2024}>2024</option>
+                <option value={2025}>2025</option>
+                <option value={2026}>2026</option>
               </select>
               <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
@@ -111,13 +111,13 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
         {viewMode === 'bulan' ? (
           <div>
             {/* Legend indicators */}
-            <div className="flex flex-wrap items-center gap-4 text-xs mb-3 text-slate-300 font-semibold">
+            <div className="flex flex-wrap items-center gap-4 text-xs mb-3 text-slate-300 font-medium">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#00D995] shadow-sm"></span>
+                <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 shadow-sm"></span>
                 <span className="text-[11px]">Tepat Waktu (80%)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#F59E0B] shadow-sm"></span>
+                <span className="w-2.5 h-2.5 rounded-sm bg-amber-500 shadow-sm"></span>
                 <span className="text-[11px]">Terlambat (10%)</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -130,9 +130,9 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
             <div className="overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-slate-700">
               <div className="min-w-[540px] h-48 flex items-end justify-between gap-2.5 pt-6 px-1 relative border-b border-slate-800">
                 {/* Horizontal Grid lines */}
-                <div className="absolute inset-x-0 top-4 border-b border-slate-800/50 pointer-events-none"></div>
-                <div className="absolute inset-x-0 top-18 border-b border-slate-800/50 pointer-events-none"></div>
-                <div className="absolute inset-x-0 top-32 border-b border-slate-800/50 pointer-events-none"></div>
+                <div className="absolute inset-x-0 top-4 border-b border-slate-800/40 pointer-events-none"></div>
+                <div className="absolute inset-x-0 top-18 border-b border-slate-800/40 pointer-events-none"></div>
+                <div className="absolute inset-x-0 top-32 border-b border-slate-800/40 pointer-events-none"></div>
 
                 {fullYearMonths.map((m) => {
                   const heightPercent = m.amount > 0 ? Math.round((m.amount / maxMonthAmount) * 100) : 6;
@@ -149,22 +149,22 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
                       onClick={() => setHoveredMonth(m)}
                     >
                       {/* Bar Pillar */}
-                      <div className="w-full max-w-[34px] bg-slate-950/90 rounded-t-lg overflow-hidden flex flex-col justify-end p-0.5 relative transition-all duration-300 group-hover:scale-105">
+                      <div className="w-full max-w-[34px] bg-slate-900 rounded-t-md overflow-hidden flex flex-col justify-end p-0.5 relative transition-all duration-200 group-hover:scale-105">
                         <div
                           style={{ height: `${heightPercent}%` }}
-                          className={`w-full rounded-t-md transition-all duration-500 shadow-md ${
+                          className={`w-full rounded-t-sm transition-all duration-300 ${
                             isPaid
-                              ? 'bg-gradient-to-t from-emerald-600 to-[#00D995] group-hover:from-emerald-500 group-hover:to-teal-300'
+                              ? 'bg-emerald-500 group-hover:bg-emerald-400'
                               : isLate
-                              ? 'bg-gradient-to-t from-amber-600 to-[#F59E0B] group-hover:from-amber-500 group-hover:to-yellow-300'
-                              : 'bg-slate-700/60 group-hover:bg-slate-600'
+                              ? 'bg-amber-500 group-hover:bg-amber-400'
+                              : 'bg-slate-700 group-hover:bg-slate-600'
                           }`}
                         ></div>
                       </div>
 
                       {/* Month Label */}
                       <div className="mt-2 text-center">
-                        <span className="text-[11px] font-bold text-slate-300 group-hover:text-white transition-colors">
+                        <span className="text-[11px] font-semibold text-slate-400 group-hover:text-white transition-colors">
                           {m.shortName}
                         </span>
                         <div className="mt-0.5">
@@ -174,12 +174,12 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
                         </div>
                       </div>
 
-                      {/* Tooltip on Hover matching requested specification */}
+                      {/* Tooltip on Hover */}
                       {hoveredMonth?.shortName === m.shortName && (
-                        <div className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 bg-slate-950 border border-slate-700 text-white text-[11px] p-3 rounded-2xl shadow-2xl z-30 pointer-events-none whitespace-nowrap min-w-[170px]">
-                          <div className="font-extrabold text-white text-xs border-b border-slate-800 pb-1 mb-1.5 flex items-center justify-between">
+                        <div className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white text-[11px] p-2.5 rounded-xl shadow-lg z-30 pointer-events-none whitespace-nowrap min-w-[160px]">
+                          <div className="font-bold text-white text-xs border-b border-slate-800 pb-1 mb-1.5 flex items-center justify-between">
                             <span>{m.name} {selectedYear}</span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded font-semibold ${
                               isPaid ? 'bg-emerald-950 text-emerald-300' : isLate ? 'bg-amber-950 text-amber-300' : 'bg-slate-800 text-slate-400'
                             }`}>
                               {isPaid ? 'Lunas' : isLate ? 'Terlambat' : 'Belum Bayar'}
@@ -189,7 +189,7 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
                             <div>Tepat Waktu: <strong className="text-emerald-400 font-mono">{m.tepatWaktuPct}%</strong></div>
                             <div>Terlambat: <strong className="text-amber-400 font-mono">{m.terlambatPct}%</strong></div>
                             <div>Belum Dibayar: <strong className="text-slate-400 font-mono">{m.belumBayarPct}%</strong></div>
-                            <div className="pt-1 border-t border-slate-800/80 text-white font-semibold">Total: <strong className="font-mono">{formatRupiah(m.amount)}</strong></div>
+                            <div className="pt-1 border-t border-slate-800/80 text-white font-medium">Total: <strong className="font-mono">{formatRupiah(m.amount)}</strong></div>
                           </div>
                         </div>
                       )}
@@ -202,7 +202,7 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
         ) : (
           /* Multi Year Comparison View */
           <div>
-            <div className="text-xs text-slate-400 mb-3 font-semibold">
+            <div className="text-xs text-slate-400 mb-3 font-medium">
               Perbandingan akumulasi dana iuran masuk tahunan (dalam Juta Rupiah):
             </div>
             <div className="h-48 flex items-end justify-around gap-4 pt-6 px-3 border-b border-slate-800">
@@ -215,20 +215,20 @@ export const InteractivePaymentChart: React.FC<PaymentChartProps> = ({
                     onMouseEnter={() => setHoveredYearItem(y)}
                     onMouseLeave={() => setHoveredYearItem(null)}
                   >
-                    <div className="w-full bg-slate-950/80 rounded-t-xl p-1 flex flex-col justify-end">
+                    <div className="w-full bg-slate-900 rounded-t-lg p-1 flex flex-col justify-end">
                       <div
                         style={{ height: `${heightPercent}%` }}
-                        className="w-full bg-gradient-to-t from-blue-700 via-blue-500 to-indigo-400 rounded-t-lg transition-all duration-500 group-hover:brightness-110 shadow-lg shadow-blue-950/50"
+                        className="w-full bg-blue-600 hover:bg-blue-500 rounded-t-md transition-all duration-300 shadow-sm"
                       ></div>
                     </div>
                     <div className="mt-2 text-center">
-                      <span className="text-xs font-bold text-white block">{y.year}</span>
-                      <span className="text-[10px] font-mono text-blue-400 font-extrabold block">Rp {y.total} jt</span>
+                      <span className="text-xs font-semibold text-white block">{y.year}</span>
+                      <span className="text-[10px] font-mono text-blue-400 font-bold block">Rp {y.total} jt</span>
                     </div>
 
                     {hoveredYearItem?.year === y.year && (
-                      <div className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 bg-slate-950 border border-slate-700 text-white text-xs p-2.5 rounded-xl shadow-2xl z-30 pointer-events-none whitespace-nowrap">
-                        <div className="font-bold text-blue-400 mb-0.5">Tahun {y.year}</div>
+                      <div className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white text-xs p-2.5 rounded-xl shadow-lg z-30 pointer-events-none whitespace-nowrap">
+                        <div className="font-semibold text-blue-400 mb-0.5">Tahun {y.year}</div>
                         <div>Total: <strong>Rp {y.total}.000.000</strong></div>
                         <div className="text-[11px] text-slate-400">Kepatuhan: {y.kepatuhan}%</div>
                       </div>

@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { CODE_GS_CONTENT } from '../data/codeGsContent';
 import { INDEX_HTML_CONTENT } from '../data/indexHtmlContent';
 import { Copy, Download, Check, FileCode, ExternalLink, HelpCircle, AlertCircle, ShieldAlert, Lock, Key } from 'lucide-react';
+import { SijakaRole } from '../types';
 
 interface CodeExporterProps {
-  userRole?: 'Admin' | 'Anggota';
+  userRole?: SijakaRole;
   onRequestAdminLogin?: () => void;
 }
 
-export const CodeExporter: React.FC<CodeExporterProps> = ({ userRole = 'Anggota', onRequestAdminLogin }) => {
+export const CodeExporter: React.FC<CodeExporterProps> = ({ userRole = 'Admin', onRequestAdminLogin }) => {
   const [activeFile, setActiveFile] = useState<'Code.gs' | 'Index.html'>('Code.gs');
   const [copiedGs, setCopiedGs] = useState(false);
   const [copiedHtml, setCopiedHtml] = useState(false);
@@ -38,8 +39,8 @@ export const CodeExporter: React.FC<CodeExporterProps> = ({ userRole = 'Anggota'
     URL.revokeObjectURL(url);
   };
 
-  // If user is Anggota, block access with a clear Admin Login requirement screen
-  if (userRole !== 'Admin') {
+  // If user is not Admin/Super Admin, block access with a clear Admin Login requirement screen
+  if (userRole !== 'Admin' && userRole !== 'Super Admin') {
     return (
       <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-center space-y-6 p-8 relative">

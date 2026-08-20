@@ -40,6 +40,8 @@ import { ProgressIuranPanel } from './ProgressIuranPanel';
 import { InteractivePaymentChart } from './InteractivePaymentChart';
 import { RecentActivitiesPanel } from './RecentActivitiesPanel';
 import { RecentMembersTable } from './RecentMembersTable';
+import { SijakaEmptyState } from './SijakaEmptyState';
+import { KpiSkeleton, ChartSkeleton, ActivitySkeleton, MemberListSkeleton } from './SijakaSkeleton';
 import { 
   fetchDashboardData, 
   fetchPaymentHistory, 
@@ -52,15 +54,28 @@ import {
   defaultRecentActivities
 } from '../services/dashboardService';
 
+import { SijakaRole } from '../types';
+
 interface WebDashboardProps {
-  userRole?: 'Admin' | 'Anggota';
-  setUserRole?: (role: 'Admin' | 'Anggota') => void;
+  userRole?: SijakaRole;
+  setUserRole?: (role: SijakaRole) => void;
   onOpenWaBotSimulator?: () => void;
+  onOpenProfile?: () => void;
+  activeSubTab?: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan';
+  onSelectSubTab?: (tab: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan') => void;
 }
 
-export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota', setUserRole, onOpenWaBotSimulator }) => {
+export const WebDashboard: React.FC<WebDashboardProps> = ({ 
+  userRole = 'Anggota', 
+  setUserRole, 
+  onOpenWaBotSimulator,
+  onOpenProfile,
+  activeSubTab: externalSubTab,
+  onSelectSubTab
+}) => {
   const [data, setData] = useState(sijakaEngine.getData());
-  const [activeSubTab, setActiveSubTab] = useState<'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan'>('kematian');
+  const [internalSubTab, setInternalSubTab] = useState<'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan'>('kematian');
+  const activeSubTab = externalSubTab || internalSubTab;
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedAnggotaId, setExpandedAnggotaId] = useState<string | null>(null);
 
@@ -81,12 +96,37 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
   });
   const [paymentHistory, setPaymentHistory] = useState<YearPaymentHistory>(paymentDataStore[2026]);
   const [activities, setActivities] = useState<ActivityItem[]>(defaultRecentActivities);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchDashboardData(data).then(setMetrics);
-    fetchPaymentHistory(selectedYear).then(setPaymentHistory);
-    fetchActivities().then(setActivities);
+    setIsLoading(true);
+    Promise.all([
+      fetchDashboardData(data).then(setMetrics),
+      fetchPaymentHistory(selectedYear).then(setPaymentHistory),
+      fetchActivities().then(setActivities)
+    ]).finally(() => {
+      setIsLoading(false);
+    });
   }, [data, selectedYear]);
+
+  // Keyboard handler for modal dismissal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowModalKematian(false);
+        setShowModalIuran(false);
+        setShowModalAnggota(false);
+        setShowModalKeluarga(false);
+        setShowModalEditAnggota(false);
+        setShowModalEditKeluarga(false);
+        setShowRestrictedModal(false);
+        setKuitansiModal(prev => ({ ...prev, isOpen: false }));
+        setIsLaporanKasModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Active Anggota Login state for Anggota mode
   const [activeAnggotaId, setActiveAnggotaId] = useState<string>('ANG-001');
@@ -223,10 +263,8 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
   };
 
   const handleSubTabChange = (tab: 'kematian' | 'iuran' | 'anggota' | 'bukukas' | 'users' | 'layanan') => {
-    if (userRole === 'Anggota' && (tab === 'iuran' || tab === 'bukukas' || tab === 'users' || tab === 'layanan')) {
+    if (userRole === 'Anggota' && (tab === 'users' || tab === 'layanan')) {
       const names: Record<string, string> = {
-        iuran: 'Data & Reconcile Iuran',
-        bukukas: 'Buku Kas Financials',
         users: 'Manajemen Accounts & Sessions',
         layanan: 'Pencairan Santunan & Pemulasaraan'
       };
@@ -234,7 +272,10 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
       setShowRestrictedModal(true);
       return;
     }
-    setActiveSubTab(tab);
+    setInternalSubTab(tab);
+    if (onSelectSubTab) {
+      onSelectSubTab(tab);
+    }
   };
 
   const [anggotaForm, setAnggotaForm] = useState<{
@@ -432,44 +473,71 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
         onOpenWaBotSimulator={() => {
           if (onOpenWaBotSimulator) onOpenWaBotSimulator();
         }}
+        onOpenProfile={onOpenProfile}
         userRole={userRole}
       />
 
       {/* 3. Executive KPI Cards (4 Column Grid) */}
-      <ExecutiveKpiCards
-        metrics={metrics}
-        kasMasukTotal={data.summaryKas.masuk}
-      />
+      {isLoading ? (
+        <KpiSkeleton count={4} />
+      ) : (
+        <ExecutiveKpiCards
+          metrics={metrics}
+          kasMasukTotal={data.summaryKas.masuk}
+        />
+      )}
 
       {/* 4. Analytics Section: Interactive Payment Chart + Progress Iuran Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-7">
-          <InteractivePaymentChart
-            paymentHistory={paymentHistory}
-            selectedYear={selectedYear}
-            onSelectYear={setSelectedYear}
-          />
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-7">
+            <ChartSkeleton />
+          </div>
+          <div className="lg:col-span-5">
+            <ChartSkeleton />
+          </div>
         </div>
-        <div className="lg:col-span-5">
-          <ProgressIuranPanel
-            selectedYear={selectedYear}
-            onSelectYear={setSelectedYear}
-          />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="lg:col-span-7">
+            <InteractivePaymentChart
+              paymentHistory={paymentHistory}
+              selectedYear={selectedYear}
+              onSelectYear={setSelectedYear}
+            />
+          </div>
+          <div className="lg:col-span-5">
+            <ProgressIuranPanel
+              selectedYear={selectedYear}
+              onSelectYear={setSelectedYear}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 6. Two-Column Analytics Grid: Recent Activities + Recent Members */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-6">
-          <RecentActivitiesPanel activities={activities} />
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-6">
+            <ActivitySkeleton />
+          </div>
+          <div className="lg:col-span-6">
+            <MemberListSkeleton />
+          </div>
         </div>
-        <div className="lg:col-span-6">
-          <RecentMembersTable
-            anggotaList={data.anggota}
-            onViewAllMembers={() => handleSubTabChange('anggota')}
-          />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-6">
+            <RecentActivitiesPanel activities={activities} />
+          </div>
+          <div className="lg:col-span-6">
+            <RecentMembersTable
+              anggotaList={data.anggota}
+              onViewAllMembers={() => handleSubTabChange('anggota')}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Role Permission Guidance Banner */}
       <div className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-sm ${
@@ -595,7 +663,9 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
               }`}
             >
               <AlertTriangle className="w-4 h-4 text-rose-600" />
-              <span>Laporan Kematian</span>
+              <span>
+                {userRole === 'Anggota' ? 'Pengajuan Santunan' : userRole === 'Ketua' ? 'Ringkasan Pengajuan' : 'Laporan Kematian'}
+              </span>
               <span className="bg-rose-100 text-rose-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
                 {data.kematian.length}
               </span>
@@ -610,14 +680,12 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
               }`}
             >
               <DollarSign className="w-4 h-4 text-emerald-600" />
-              <span>Data Iuran</span>
-              {userRole === 'Anggota' ? (
-                <Lock className="w-3 h-3 text-amber-500" />
-              ) : (
-                <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
-                  {data.iuran.length}
-                </span>
-              )}
+              <span>
+                {userRole === 'Anggota' ? 'Riwayat Iuran Saya' : userRole === 'Ketua' ? 'Rekap Iuran' : 'Data Iuran'}
+              </span>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
+                {data.iuran.length}
+              </span>
             </button>
 
             <button
@@ -629,7 +697,9 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
               }`}
             >
               <Users className="w-4 h-4 text-blue-600" />
-              <span>Anggota & Keluarga</span>
+              <span>
+                {userRole === 'Anggota' ? 'Data Keluarga Saya' : userRole === 'Ketua' ? 'Data Jamaah' : 'Anggota & Keluarga'}
+              </span>
               <span className="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
                 {data.anggota.length}
               </span>
@@ -644,53 +714,47 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
               }`}
             >
               <FileText className="w-4 h-4 text-indigo-600" />
-              <span>Buku Kas</span>
-              {userRole === 'Anggota' ? (
-                <Lock className="w-3 h-3 text-amber-500" />
-              ) : (
-                <span className="bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
-                  {data.bukukas.length}
-                </span>
-              )}
+              <span>
+                {userRole === 'Anggota' ? 'Transparansi Kas' : userRole === 'Ketua' ? 'Laporan Keuangan' : 'Buku Kas'}
+              </span>
+              <span className="bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
+                {data.bukukas.length}
+              </span>
             </button>
 
-            <button
-              onClick={() => handleSubTabChange('users')}
-              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                activeSubTab === 'users'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-              }`}
-            >
-              <UserCheck className="w-4 h-4 text-purple-600" />
-              <span>Users & Sessions</span>
-              {userRole === 'Anggota' ? (
-                <Lock className="w-3 h-3 text-amber-500" />
-              ) : (
-                <span className="bg-purple-100 text-purple-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
-                  {(data as any).users?.length || 0}
-                </span>
-              )}
-            </button>
+            {(userRole === 'Admin' || userRole === 'Super Admin') && (
+              <>
+                <button
+                  onClick={() => handleSubTabChange('users')}
+                  className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    activeSubTab === 'users'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  }`}
+                >
+                  <UserCheck className="w-4 h-4 text-purple-600" />
+                  <span>Users & Sessions</span>
+                  <span className="bg-purple-100 text-purple-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
+                    {(data as any).users?.length || 0}
+                  </span>
+                </button>
 
-            <button
-              onClick={() => handleSubTabChange('layanan')}
-              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                activeSubTab === 'layanan'
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-              }`}
-            >
-              <Heart className="w-4 h-4 text-teal-600" />
-              <span>Pelayanan & Santunan</span>
-              {userRole === 'Anggota' ? (
-                <Lock className="w-3 h-3 text-amber-500" />
-              ) : (
-                <span className="bg-teal-100 text-teal-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
-                  {(data as any).pelayanan?.length || 0}
-                </span>
-              )}
-            </button>
+                <button
+                  onClick={() => handleSubTabChange('layanan')}
+                  className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                    activeSubTab === 'layanan'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  }`}
+                >
+                  <Heart className="w-4 h-4 text-teal-600" />
+                  <span>Pelayanan & Santunan</span>
+                  <span className="bg-teal-100 text-teal-800 text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
+                    {(data as any).pelayanan?.length || 0}
+                  </span>
+                </button>
+              </>
+            )}
           </div>
 
           {/* Search bar & Dynamic Add Button */}
@@ -738,24 +802,45 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
         </div>
 
         {/* TAB 1: LAPORAN KEMATIAN */}
-        {activeSubTab === 'kematian' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-3">ID Laporan</th>
-                  <th className="px-4 py-3">Tanggal Lapor</th>
-                  <th className="px-4 py-3">ID Anggota</th>
-                  <th className="px-4 py-3">Waktu Kematian</th>
-                  <th className="px-4 py-3">Tempat</th>
-                  <th className="px-4 py-3">Status Verifikasi</th>
-                  <th className="px-4 py-3 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {data.kematian
-                  .filter(k => k.id_laporan.toLowerCase().includes(searchTerm.toLowerCase()) || k.id_anggota.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((r) => (
+        {activeSubTab === 'kematian' && (() => {
+          const filteredKematian = data.kematian.filter(k => 
+            k.id_laporan.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            k.id_anggota.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          if (filteredKematian.length === 0) {
+            return (
+              <div className="p-4">
+                <SijakaEmptyState
+                  icon={Heart}
+                  title="Belum ada pengajuan santunan saat ini."
+                  description="Semua pengajuan santunan telah diproses atau belum ada pelaporan kematian baru yang masuk."
+                  actionText="Ajukan Santunan"
+                  onAction={() => setShowModalKematian(true)}
+                  actionVariant="rose"
+                  secondaryActionText={searchTerm ? "Reset Pencarian" : undefined}
+                  onSecondaryAction={searchTerm ? () => setSearchTerm('') : undefined}
+                />
+              </div>
+            );
+          }
+
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3">ID Laporan</th>
+                    <th className="px-4 py-3">Tanggal Lapor</th>
+                    <th className="px-4 py-3">ID Anggota</th>
+                    <th className="px-4 py-3">Waktu Kematian</th>
+                    <th className="px-4 py-3">Tempat</th>
+                    <th className="px-4 py-3">Status Verifikasi</th>
+                    <th className="px-4 py-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filteredKematian.map((r) => (
                     <tr key={r.id_laporan} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-4 py-3 font-semibold text-slate-900">{r.id_laporan}</td>
                       <td className="px-4 py-3 text-slate-600">{r.tanggal_lapor}</td>
@@ -805,30 +890,52 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
                       </td>
                     </tr>
                   ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
         {/* TAB 2: DATA IURAN */}
-        {activeSubTab === 'iuran' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-3">ID Iuran</th>
-                  <th className="px-4 py-3">Tanggal</th>
-                  <th className="px-4 py-3">ID Anggota</th>
-                  <th className="px-4 py-3">Periode</th>
-                  <th className="px-4 py-3">Nominal</th>
-                  <th className="px-4 py-3">Keterangan</th>
-                  <th className="px-4 py-3 text-right">Kuitansi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {data.iuran
-                  .filter(i => i.id_iuran.toLowerCase().includes(searchTerm.toLowerCase()) || i.id_anggota.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((r) => (
+        {activeSubTab === 'iuran' && (() => {
+          const filteredIuran = data.iuran.filter(i => 
+            i.id_iuran.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            i.id_anggota.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          if (filteredIuran.length === 0) {
+            return (
+              <div className="p-4">
+                <SijakaEmptyState
+                  icon={DollarSign}
+                  title="Data pembayaran Anda belum tersedia."
+                  description="Belum ada catatan setoran iuran yang tercatat pada kriteria pencarian ini."
+                  actionText="Input Iuran"
+                  onAction={() => setShowModalIuran(true)}
+                  actionVariant="emerald"
+                  secondaryActionText={searchTerm ? "Reset Pencarian" : undefined}
+                  onSecondaryAction={searchTerm ? () => setSearchTerm('') : undefined}
+                />
+              </div>
+            );
+          }
+
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3">ID Iuran</th>
+                    <th className="px-4 py-3">Tanggal</th>
+                    <th className="px-4 py-3">ID Anggota</th>
+                    <th className="px-4 py-3">Periode</th>
+                    <th className="px-4 py-3">Nominal</th>
+                    <th className="px-4 py-3">Keterangan</th>
+                    <th className="px-4 py-3 text-right">Kuitansi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filteredIuran.map((r) => (
                     <tr key={r.id_iuran} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-4 py-3 font-semibold text-slate-900">{r.id_iuran}</td>
                       <td className="px-4 py-3 text-slate-600">{r.tanggal}</td>
@@ -852,31 +959,54 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
                       </td>
                     </tr>
                   ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
         {/* TAB 3: DATA ANGGOTA & KELUARGA */}
-        {activeSubTab === 'anggota' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-3">ID Anggota</th>
-                  <th className="px-4 py-3">NIK Kepala</th>
-                  <th className="px-4 py-3">Nama Anggota Utama</th>
-                  <th className="px-4 py-3">Alamat</th>
-                  <th className="px-4 py-3">No. WhatsApp</th>
-                  <th className="px-4 py-3">Tanggungan / Keluarga</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {data.anggota
-                  .filter(a => a.nama.toLowerCase().includes(searchTerm.toLowerCase()) || a.id.toLowerCase().includes(searchTerm.toLowerCase()) || (a.keluarga && a.keluarga.some(k => k.nama.toLowerCase().includes(searchTerm.toLowerCase()))))
-                  .map((r) => {
+        {activeSubTab === 'anggota' && (() => {
+          const filteredAnggota = data.anggota.filter(a => 
+            a.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            a.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            (a.keluarga && a.keluarga.some(k => k.nama.toLowerCase().includes(searchTerm.toLowerCase())))
+          );
+
+          if (filteredAnggota.length === 0) {
+            return (
+              <div className="p-4">
+                <SijakaEmptyState
+                  icon={Users}
+                  title="Belum ada data anggota yang terdaftar."
+                  description="Daftarkan kepala keluarga baru untuk memulai perlindungan jaminan kematian jamaah."
+                  actionText="Tambah Anggota"
+                  onAction={handleOpenTambahAnggota}
+                  actionVariant="blue"
+                  secondaryActionText={searchTerm ? "Reset Pencarian" : undefined}
+                  onSecondaryAction={searchTerm ? () => setSearchTerm('') : undefined}
+                />
+              </div>
+            );
+          }
+
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3">ID Anggota</th>
+                    <th className="px-4 py-3">NIK Kepala</th>
+                    <th className="px-4 py-3">Nama Anggota Utama</th>
+                    <th className="px-4 py-3">Alamat</th>
+                    <th className="px-4 py-3">No. WhatsApp</th>
+                    <th className="px-4 py-3">Tanggungan / Keluarga</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filteredAnggota.map((r) => {
                     const isExpanded = expandedAnggotaId === r.id;
                     const familyList = r.keluarga || [];
 
@@ -1052,28 +1182,50 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
                       </React.Fragment>
                     );
                   })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
         {/* TAB 4: BUKU KAS */}
-        {activeSubTab === 'bukukas' && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="px-4 py-3">ID Kas</th>
-                  <th className="px-4 py-3">Tanggal</th>
-                  <th className="px-4 py-3">Tipe</th>
-                  <th className="px-4 py-3">Nominal</th>
-                  <th className="px-4 py-3">Keterangan Transaksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {data.bukukas
-                  .filter(b => b.keterangan.toLowerCase().includes(searchTerm.toLowerCase()) || b.id_kas.toLowerCase().includes(searchTerm.toLowerCase()))
-                  .map((r) => {
+        {activeSubTab === 'bukukas' && (() => {
+          const filteredKas = data.bukukas.filter(b => 
+            b.keterangan.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            b.id_kas.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          if (filteredKas.length === 0) {
+            return (
+              <div className="p-4">
+                <SijakaEmptyState
+                  icon={FileText}
+                  title="Belum ada transaksi kas tercatat."
+                  description="Pencatatan kas masuk dan santunan keluar akan muncul di sini secara otomatis."
+                  actionText="Export Laporan"
+                  onAction={() => setIsLaporanKasModalOpen(true)}
+                  actionVariant="purple"
+                  secondaryActionText={searchTerm ? "Reset Pencarian" : undefined}
+                  onSecondaryAction={searchTerm ? () => setSearchTerm('') : undefined}
+                />
+              </div>
+            );
+          }
+
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="px-4 py-3">ID Kas</th>
+                    <th className="px-4 py-3">Tanggal</th>
+                    <th className="px-4 py-3">Tipe</th>
+                    <th className="px-4 py-3">Nominal</th>
+                    <th className="px-4 py-3">Keterangan Transaksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filteredKas.map((r) => {
                     const isMasuk = r.tipe === 'Masuk';
                     return (
                       <tr key={r.id_kas} className="hover:bg-slate-50/80 transition-colors">
@@ -1093,10 +1245,11 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({ userRole = 'Anggota'
                       </tr>
                     );
                   })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
         {/* TAB 5: USERS & SESSIONS */}
         {activeSubTab === 'users' && (

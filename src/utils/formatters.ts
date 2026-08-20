@@ -18,3 +18,27 @@ export const formatRupiah = (amount: number | string): string => {
   if (isNaN(num)) return 'Rp 0';
   return 'Rp ' + Math.floor(num).toLocaleString('id-ID');
 };
+
+export const formatRupiahCompact = (amount: number | string): string => {
+  if (amount === undefined || amount === null) return 'Rp 0';
+  const num = typeof amount === 'string' ? parseFloat(amount.replace(/[^0-9,-]/g, '').replace(',', '.')) : amount;
+  if (isNaN(num) || !num) return 'Rp 0';
+  if (Math.abs(num) >= 1_000_000_000) {
+    return `Rp ${(num / 1_000_000_000).toLocaleString('id-ID', { maximumFractionDigits: 2 })} M`;
+  }
+  if (Math.abs(num) >= 1_000_000) {
+    return `Rp ${(num / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 2 })} jt`;
+  }
+  if (Math.abs(num) >= 1_000) {
+    return `Rp ${(num / 1_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} rb`;
+  }
+  return `Rp ${Math.floor(num).toLocaleString('id-ID')}`;
+};
+
+export const formatDateIndo = (dateStr?: string | Date | null): string => {
+  if (!dateStr) return '-';
+  const d = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+  if (isNaN(d.getTime())) return String(dateStr);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+};

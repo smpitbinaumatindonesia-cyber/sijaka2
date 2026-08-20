@@ -13,10 +13,21 @@ import {
   Info, 
   PhoneCall, 
   Trash2,
-  CheckCheck
+  CheckCheck,
+  Lock,
+  Key
 } from 'lucide-react';
+import { SijakaRole } from '../types';
 
-export const WaBotSimulator: React.FC = () => {
+interface WaBotSimulatorProps {
+  userRole?: SijakaRole;
+  onRequestAdminLogin?: () => void;
+}
+
+export const WaBotSimulator: React.FC<WaBotSimulatorProps> = ({ 
+  userRole = 'Admin', 
+  onRequestAdminLogin 
+}) => {
   const [senderPhone, setSenderPhone] = useState('081234567891'); // Sample ANG-001 phone
   const [inputMsg, setInputMsg] = useState('');
   const [isGroupMsg, setIsGroupMsg] = useState(false);
@@ -51,6 +62,44 @@ export const WaBotSimulator: React.FC = () => {
     setChatHistory([...sijakaEngine.getChatHistory()]);
     setBroadcastLogs([...sijakaEngine.getBroadcastLogs()]);
   };
+
+  // Direct route RBAC protection
+  if (userRole !== 'Admin' && userRole !== 'Super Admin') {
+    return (
+      <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-center space-y-6 p-8 relative">
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-600"></div>
+          
+          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600 shadow-inner">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2 max-w-lg mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+              <Lock className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Akses Terbatas • Khusus Admin / Pengurus</span>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+              Simulator WhatsApp Gateway & Webhook Fonnte
+            </h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Modul pengujian bot interaktif WhatsApp dan monitoring broadcast gateway dikhususkan untuk <strong>Admin / Pengurus SIJAKA</strong>.
+            </p>
+          </div>
+
+          <div className="pt-2">
+            <button
+              onClick={onRequestAdminLogin}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-3 rounded-xl font-extrabold text-xs transition-all shadow-lg shadow-emerald-900/20 hover:scale-105 active:scale-95"
+            >
+              <Key className="w-4 h-4" />
+              <span>Login sebagai Admin / Pengurus</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
@@ -304,8 +353,21 @@ export const WaBotSimulator: React.FC = () => {
                   <div key={log.id} className="p-3 bg-slate-50 rounded-md border border-slate-200 text-xs space-y-1">
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-slate-800">{log.target}</span>
-                      <span className="bg-emerald-100 text-emerald-800 font-semibold px-1.5 py-0.2 rounded text-[10px] border border-emerald-200">{log.status} • {log.timestamp}</span>
+                      <span className={`font-semibold px-1.5 py-0.5 rounded text-[10px] border ${
+                        log.status === 'SENT' 
+                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
+                          : log.status === 'NOT_CONFIGURED'
+                          ? 'bg-amber-100 text-amber-800 border-amber-200'
+                          : 'bg-rose-100 text-rose-800 border-rose-200'
+                      }`}>
+                        {log.status === 'SENT' ? 'TERKIRIM' : log.status === 'NOT_CONFIGURED' ? 'BELUM TERKONFIGURASI' : 'GAGAL'} • {log.timestamp}
+                      </span>
                     </div>
+                    {log.statusNote && (
+                      <div className="text-[10px] text-amber-700 italic">
+                        {log.statusNote}
+                      </div>
+                    )}
                     <div className="text-[11px] text-slate-600 line-clamp-2 whitespace-pre-wrap font-sans bg-white p-2 rounded border border-slate-200 mt-1">
                       {log.message}
                     </div>

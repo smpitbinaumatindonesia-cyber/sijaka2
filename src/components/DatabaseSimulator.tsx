@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { sijakaEngine } from '../services/sijakaEngine';
 import { Table, Database, RefreshCw, Plus, Download, FileSpreadsheet, ExternalLink, Lock, ShieldAlert, Key, AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import { maskNik, maskPhone } from '../utils/formatters';
+import { SijakaRole } from '../types';
 
 interface DatabaseSimulatorProps {
-  userRole?: 'Admin' | 'Anggota';
+  userRole?: SijakaRole;
   onRequestAdminLogin?: () => void;
 }
 
-export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole = 'Anggota', onRequestAdminLogin }) => {
+export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole = 'Admin', onRequestAdminLogin }) => {
   const [data, setData] = useState(sijakaEngine.getData());
   const [activeSheet, setActiveSheet] = useState<'Anggota' | 'Keluarga' | 'Kematian' | 'Iuran' | 'BukuKas' | 'Users' | 'Sessions' | 'Pelayanan' | 'Santunan'>('Anggota');
   const [showResetModal, setShowResetModal] = useState(false);
@@ -40,8 +41,8 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
     return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
   };
 
-  // If user is Anggota, block access with a clear Admin Login requirement screen
-  if (userRole !== 'Admin') {
+  // If user is not Admin/Super Admin, block access with a clear Admin Login requirement screen
+  if (userRole !== 'Admin' && userRole !== 'Super Admin') {
     return (
       <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-center space-y-6 p-8 relative">
