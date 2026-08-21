@@ -145,13 +145,13 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
         <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider block">
                 TOTAL ANGGOTA
               </span>
-              <div className="text-2xl sm:text-[28px] font-black text-white tracking-tight font-sans">
+              <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
                 1.248
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium pt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium pt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>+{metrics.totalMembersGrowth} (+3,2% thn ini)</span>
               </div>
@@ -175,7 +175,7 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
                 <circle cx="100" cy="4" r="2.5" fill="#60A5FA" />
               </svg>
             </div>
-            <span className="text-[10px] text-blue-400 font-semibold">83% Terdaftar</span>
+            <span className="text-xs text-blue-400 font-semibold">83% Terdaftar</span>
           </div>
         </div>
 
@@ -183,13 +183,13 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
         <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider block">
                 TOTAL SANTUNAN
               </span>
-              <div className="text-2xl sm:text-[28px] font-black text-white tracking-tight font-sans">
+              <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-sans">
                 86
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-purple-400 font-medium pt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-purple-400 font-medium pt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Rp 215.000.000 tersalurkan</span>
               </div>
@@ -213,7 +213,7 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
                 <circle cx="100" cy="6" r="2.5" fill="#A78BFA" />
               </svg>
             </div>
-            <span className="text-[10px] text-purple-400 font-semibold">100% Selesai</span>
+            <span className="text-xs text-purple-400 font-semibold">100% Selesai</span>
           </div>
         </div>
 
@@ -221,13 +221,13 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
         <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider block">
                 TOTAL DANA IURAN
               </span>
-              <div className="text-2xl sm:text-[28px] font-black text-emerald-400 tracking-tight font-sans">
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-400 tracking-tight font-sans">
                 Rp 125,45 jt
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium pt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium pt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>+8,4% vs tahun lalu</span>
               </div>
@@ -251,7 +251,7 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
                 <circle cx="100" cy="2" r="2.5" fill="#34D399" />
               </svg>
             </div>
-            <span className="text-[10px] text-emerald-400 font-semibold">Kas Solven</span>
+            <span className="text-xs text-emerald-400 font-semibold">Kas Solven</span>
           </div>
         </div>
 
@@ -259,13 +259,13 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
         <div className="bg-[#0B1428] border border-slate-800/80 hover:border-slate-700 rounded-xl p-4 sm:p-5 shadow-sm relative overflow-hidden group transition-all duration-200">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              <span className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider block">
                 PENGAJUAN AKTIF
               </span>
-              <div className="text-2xl sm:text-[28px] font-black text-amber-400 tracking-tight font-sans">
+              <div className="text-2xl sm:text-3xl font-bold text-amber-400 tracking-tight font-sans">
                 7
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] text-amber-300 font-medium pt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-amber-300 font-medium pt-0.5">
                 <Clock className="w-3.5 h-3.5" />
                 <span>Verifikasi Berkas RT/RW</span>
               </div>
@@ -289,7 +289,7 @@ export const ExecutiveKpiCards: React.FC<ExecutiveKpiCardsProps> = ({ metrics })
                 <circle cx="100" cy="8" r="2.5" fill="#FCD34D" />
               </svg>
             </div>
-            <span className="text-[10px] text-amber-400 font-semibold">&lt; 24 Jam</span>
+            <span className="text-xs text-amber-400 font-semibold">&lt; 24 Jam</span>
           </div>
         </div>
 

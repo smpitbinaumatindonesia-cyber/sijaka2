@@ -50,27 +50,27 @@ export const RecentActivitiesPanel: React.FC<RecentActivitiesPanelProps> = ({ ac
       
       <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20 shrink-0">
             <Activity className="w-4 h-4 stroke-[2]" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
-              AKTIVITAS TERBARU
+            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              Aktivitas Terbaru
             </h3>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
+            <p className="text-xs sm:text-sm text-slate-400 hidden sm:block">
               Log aktivitas mutasi, santunan, dan administrasi sistem
             </p>
           </div>
         </div>
 
-        <span className="text-[10px] text-slate-400 font-semibold bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">
+        <span className="text-xs text-slate-400 font-semibold bg-slate-900 px-2.5 py-1 rounded-md border border-slate-800">
           Realtime
         </span>
       </div>
 
       {/* List on mobile (max 3 items) vs Full list on desktop (sm:) */}
       {activities.length === 0 ? (
-        <div className="py-8 text-center text-xs text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800/60 mt-3">
+        <div className="py-8 text-center text-xs sm:text-sm text-slate-500 bg-slate-900/40 rounded-xl border border-slate-800/60 mt-3">
           Belum ada catatan aktivitas terbaru saat ini.
         </div>
       ) : (
@@ -78,7 +78,7 @@ export const RecentActivitiesPanel: React.FC<RecentActivitiesPanelProps> = ({ ac
           {activities.map((act, index) => (
             <div
               key={act.id}
-              className={`items-start gap-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all group ${
+              className={`items-start gap-3 p-3.5 rounded-xl bg-slate-900/50 border border-slate-800/80 hover:border-slate-700 transition-all group ${
                 index >= 3 ? 'hidden sm:flex' : 'flex'
               }`}
             >
@@ -88,18 +88,18 @@ export const RecentActivitiesPanel: React.FC<RecentActivitiesPanelProps> = ({ ac
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <h4 className="text-xs font-semibold text-white truncate group-hover:text-blue-300 transition-colors">
+                  <h4 className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-blue-300 transition-colors">
                     {act.title}
                   </h4>
-                  <span className="text-[10px] text-slate-400 shrink-0 font-normal flex items-center gap-1 font-mono">
+                  <span className="text-xs text-slate-400 shrink-0 font-normal flex items-center gap-1 font-mono">
                     <Clock className="w-3 h-3" />
                     <span>{act.timeAgo}</span>
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
+                <p className="text-xs sm:text-sm text-slate-300 mt-0.5 line-clamp-1">
                   {act.description}
                 </p>
-                <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                <div className="text-xs text-slate-500 mt-1 font-mono">
                   Oleh: {act.actor}
                 </div>
               </div>
@@ -110,13 +110,13 @@ export const RecentActivitiesPanel: React.FC<RecentActivitiesPanelProps> = ({ ac
 
       {/* Mobile Footer Link: Lihat Semua → */}
       <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex sm:hidden items-center justify-between">
-        <span className="text-[11px] text-slate-500">Menampilkan 3 aktivitas terbaru</span>
+        <span className="text-xs text-slate-500">Menampilkan 3 aktivitas terbaru</span>
         <button 
           onClick={() => {
             const btn = document.getElementById('tab-buku-kas-trigger');
             if (btn) btn.click();
           }}
-          className="text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1"
+          className="text-xs sm:text-sm font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1"
         >
           <span>Lihat Semua</span>
           <ChevronRight className="w-3.5 h-3.5" />

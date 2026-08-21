@@ -1,11 +1,16 @@
 export type SijakaRole = 'Public' | 'Anggota' | 'Pengurus' | 'Ketua' | 'Admin' | 'Super Admin';
 
 export interface UserAccount {
-  id_user: string;
+  id: string; // standard primary ID
   username: string;
+  password_hash?: string; // standard password hash
+  role: SijakaRole;
+  id_anggota?: string; // linkage to Anggota ID for Anggota role
+  status?: 'Aktif' | 'Nonaktif' | 'ACTIVE' | 'REVOKED';
+  // Compatibility aliases
+  id_user?: string;
   passwordHash?: string;
   password?: string;
-  role: SijakaRole | 'Admin' | 'Anggota';
   nama?: string;
 }
 
@@ -13,7 +18,8 @@ export interface UserSession {
   session_id: string;
   user_id?: string;
   username: string;
-  role?: SijakaRole | 'Admin' | 'Anggota';
+  role?: SijakaRole;
+  id_anggota?: string;
   created_at?: string;
   expires_at?: string;
   status?: 'ACTIVE' | 'REVOKED' | 'EXPIRED';
@@ -123,21 +129,29 @@ export interface SantunanKematian {
 
 export interface KeluargaMember {
   id: string; // e.g. KLG-001
-  id_anggota: string; // ANG-001
   nik: string;
   nama: string;
-  hubungan: 'Suami' | 'Istri' | 'Anak' | 'Orang Tua' | 'Mertua' | 'Lainnya';
-  tanggal_lahir?: string;
+  alamat?: string;
+  no_hp?: string;
   status: 'Hidup' | 'Meninggal';
+  // Internal relations & backwards compatibility
+  id_anggota: string; // ANG-001 (linkage to KK)
+  no_kk?: string;
+  hubungan?: 'Kepala Keluarga' | 'Suami' | 'Istri' | 'Anak' | 'Orang Tua' | 'Mertua' | 'Lainnya' | string;
+  tanggal_lahir?: string;
 }
 
 export interface Anggota {
   id: string; // e.g. ANG-001
+  no_kk?: string; // e.g. 3201012345670001
   nik: string;
   nama: string;
   alamat: string;
   no_hp: string;
   status: 'Aktif' | 'Nonaktif';
+  // Compatibility aliases
+  noKk?: string;
+  noHp?: string;
   jumlah_keluarga?: number;
   keluarga?: KeluargaMember[];
 }

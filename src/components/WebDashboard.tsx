@@ -181,6 +181,40 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({
     status: 'Hidup' | 'Meninggal';
   }>({ id: '', id_anggota: '', nik: '', nama: '', hubungan: 'Anak', status: 'Hidup' });
 
+  const [anggotaForm, setAnggotaForm] = useState<{
+    nik: string;
+    nama: string;
+    alamat: string;
+    no_hp: string;
+    keluargaList: Array<{ idTemp: string; nik: string; nama: string; hubungan: KeluargaMember['hubungan'] }>;
+  }>({ 
+    nik: '', 
+    nama: '', 
+    alamat: '', 
+    no_hp: '', 
+    keluargaList: []
+  });
+
+  const [keluargaForm, setKeluargaForm] = useState<{
+    id_anggota: string;
+    nik: string;
+    nama: string;
+    hubungan: KeluargaMember['hubungan'];
+  }>({
+    id_anggota: 'ANG-001',
+    nik: '',
+    nama: '',
+    hubungan: 'Istri'
+  });
+
+  const refreshData = () => {
+    setData(sijakaEngine.getData());
+  };
+
+  useEffect(() => {
+    refreshData();
+  }, []);
+
   // Permission Check: Admin can edit anyone, Anggota can ONLY edit own family
   const canEditAnggota = (targetIdAnggota: string) => {
     if (userRole === 'Admin') return true;
@@ -287,20 +321,6 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({
     }
   };
 
-  const [anggotaForm, setAnggotaForm] = useState<{
-    nik: string;
-    nama: string;
-    alamat: string;
-    no_hp: string;
-    keluargaList: Array<{ idTemp: string; nik: string; nama: string; hubungan: KeluargaMember['hubungan'] }>;
-  }>({ 
-    nik: '', 
-    nama: '', 
-    alamat: '', 
-    no_hp: '',
-    keluargaList: []
-  });
-
   const handleAddKeluargaRow = () => {
     setAnggotaForm(prev => ({
       ...prev,
@@ -340,26 +360,6 @@ export const WebDashboard: React.FC<WebDashboardProps> = ({
     });
     setShowModalAnggota(true);
   };
-
-  const [keluargaForm, setKeluargaForm] = useState<{
-    id_anggota: string;
-    nik: string;
-    nama: string;
-    hubungan: KeluargaMember['hubungan'];
-  }>({
-    id_anggota: 'ANG-001',
-    nik: '',
-    nama: '',
-    hubungan: 'Istri'
-  });
-
-  const refreshData = () => {
-    setData(sijakaEngine.getData());
-  };
-
-  useEffect(() => {
-    refreshData();
-  }, []);
 
   const handleKematianSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -15,6 +15,13 @@ export interface AdminAccount {
 // Pre-computed PBKDF2-HMAC-SHA256 password verifiers with unique per-user cryptographic salts
 export const ADMIN_ACCOUNTS: AdminAccount[] = [
   {
+    id_user: 'U000',
+    username: 'superadmin',
+    passwordHash: createPasswordHash('super123', 'S0P1E2R3A4D5M6I7N8'),
+    role: 'Super Admin',
+    nama: 'Super Administrator'
+  },
+  {
     id_user: 'U001',
     username: 'admin',
     passwordHash: createPasswordHash('admin123', 'A1B2C3D4E5F67890'),

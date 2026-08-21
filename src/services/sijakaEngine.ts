@@ -15,7 +15,8 @@ import {
   BackupRecord,
   ReconciliationResult,
   SecurityTestResult,
-  GranularPermission
+  GranularPermission,
+  SijakaRole
 } from '../types';
 import { maskNik, maskPhone } from '../utils/formatters';
 import { createPasswordHash, verifyPassword } from '../utils/crypto';
@@ -30,10 +31,67 @@ export function hashUserPassword(plainText: string, salt = 'SIJAKA_SYS_SALT_99')
 }
 
 const INITIAL_USERS: UserAccount[] = [
-  { id_user: 'U001', username: 'admin', passwordHash: createPasswordHash('admin123', 'A1B2C3D4E5F67890'), role: 'Admin' },
-  { id_user: 'Ketua', username: 'Wardjo', passwordHash: createPasswordHash('Wardjo123', 'B2C3D4E5F6A17890'), role: 'Admin' },
-  { id_user: 'Bend1', username: 'Imam', passwordHash: createPasswordHash('Imam123', 'C3D4E5F6A1B27890'), role: 'Admin' },
-  { id_user: 'Bend2', username: 'Dino', passwordHash: createPasswordHash('Dino123', 'D4E5F6A1B2C37890'), role: 'Admin' },
+  {
+    id: 'U000',
+    id_user: 'U000',
+    username: 'superadmin',
+    password_hash: createPasswordHash('super123', 'S0P1E2R3A4D5M6I7N8'),
+    passwordHash: createPasswordHash('super123', 'S0P1E2R3A4D5M6I7N8'),
+    role: 'Super Admin',
+    status: 'Aktif',
+    nama: 'Super Administrator'
+  },
+  {
+    id: 'U001',
+    id_user: 'U001',
+    username: 'admin',
+    password_hash: createPasswordHash('admin123', 'A1B2C3D4E5F67890'),
+    passwordHash: createPasswordHash('admin123', 'A1B2C3D4E5F67890'),
+    role: 'Admin',
+    status: 'Aktif',
+    nama: 'Administrator Utama (U001)'
+  },
+  {
+    id: 'U002',
+    id_user: 'Ketua',
+    username: 'Wardjo',
+    password_hash: createPasswordHash('Wardjo123', 'B2C3D4E5F6A17890'),
+    passwordHash: createPasswordHash('Wardjo123', 'B2C3D4E5F6A17890'),
+    role: 'Ketua',
+    status: 'Aktif',
+    nama: 'H. Wardjo (Ketua Jamaah)'
+  },
+  {
+    id: 'U003',
+    id_user: 'Bend1',
+    username: 'Imam',
+    password_hash: createPasswordHash('Imam123', 'C3D4E5F6A1B27890'),
+    passwordHash: createPasswordHash('Imam123', 'C3D4E5F6A1B27890'),
+    role: 'Pengurus',
+    status: 'Aktif',
+    nama: 'Imam S. (Bendahara 1)'
+  },
+  {
+    id: 'U004',
+    id_user: 'Bend2',
+    username: 'Dino',
+    password_hash: createPasswordHash('Dino123', 'D4E5F6A1B2C37890'),
+    passwordHash: createPasswordHash('Dino123', 'D4E5F6A1B2C37890'),
+    role: 'Pengurus',
+    status: 'Aktif',
+    nama: 'Dino P. (Pengurus Operasional)'
+  },
+  {
+    id: 'U005',
+    id_user: 'ANG-001',
+    username: 'ahmad',
+    password_hash: createPasswordHash('ahmad123', 'E5F6A1B2C3D47890'),
+    passwordHash: createPasswordHash('ahmad123', 'E5F6A1B2C3D47890'),
+    role: 'Anggota',
+    id_anggota: 'ANG-001',
+    status: 'Aktif',
+    nama: 'Ahmad Subagyo (Anggota / KK)'
+  }
 ];
 
 const INITIAL_SESSIONS: UserSession[] = [
@@ -63,7 +121,31 @@ const INITIAL_CONFIG: FonnteConfig = {
   environment: 'production'
 };
 
-export const ROLE_PERMISSIONS: Record<'Admin' | 'Anggota', GranularPermission[]> = {
+export const ROLE_PERMISSIONS: Record<SijakaRole, GranularPermission[]> = {
+  'Super Admin': [
+    'AUTH_READ_SELF',
+    'LETTER_CREATE',
+    'DEATH_REPORT_CREATE',
+    'DEATH_REPORT_READ_SELF',
+    'MEMBER_READ_ALL',
+    'MEMBER_WRITE',
+    'FAMILY_READ_ALL',
+    'FAMILY_WRITE',
+    'DEATH_VERIFY',
+    'DEATH_APPROVE',
+    'CLAIM_CREATE',
+    'CLAIM_APPROVE',
+    'PAYMENT_CREATE',
+    'CASH_READ',
+    'CASH_WRITE',
+    'AUDIT_READ',
+    'BACKUP_CREATE',
+    'BACKUP_RESTORE',
+    'CONFIG_READ',
+    'CONFIG_WRITE',
+    'DATABASE_RESET',
+    'RECONCILIATION_RUN'
+  ],
   Admin: [
     'AUTH_READ_SELF',
     'LETTER_CREATE',
@@ -88,11 +170,43 @@ export const ROLE_PERMISSIONS: Record<'Admin' | 'Anggota', GranularPermission[]>
     'DATABASE_RESET',
     'RECONCILIATION_RUN'
   ],
+  Ketua: [
+    'AUTH_READ_SELF',
+    'LETTER_CREATE',
+    'DEATH_REPORT_CREATE',
+    'DEATH_REPORT_READ_SELF',
+    'MEMBER_READ_ALL',
+    'FAMILY_READ_ALL',
+    'DEATH_VERIFY',
+    'DEATH_APPROVE',
+    'CLAIM_APPROVE',
+    'CASH_READ',
+    'AUDIT_READ',
+    'CONFIG_READ'
+  ],
+  Pengurus: [
+    'AUTH_READ_SELF',
+    'LETTER_CREATE',
+    'DEATH_REPORT_CREATE',
+    'DEATH_REPORT_READ_SELF',
+    'MEMBER_READ_ALL',
+    'MEMBER_WRITE',
+    'FAMILY_READ_ALL',
+    'FAMILY_WRITE',
+    'DEATH_VERIFY',
+    'CLAIM_CREATE',
+    'PAYMENT_CREATE',
+    'CASH_READ',
+    'CASH_WRITE'
+  ],
   Anggota: [
     'AUTH_READ_SELF',
     'DEATH_REPORT_CREATE',
     'DEATH_REPORT_READ_SELF',
     'LETTER_CREATE'
+  ],
+  Public: [
+    'AUTH_READ_SELF'
   ]
 };
 
@@ -168,6 +282,170 @@ export class SijakaEngine {
       this.broadcastLogs = [];
       this.saveState();
     }
+
+    // Seed production initial member data if database has 0 anggota
+    if (this.anggota.length === 0) {
+      this.anggota = [
+        {
+          id: 'ANG-001',
+          no_kk: '3507041205800001',
+          noKk: '3507041205800001',
+          nik: '3507041205800001',
+          nama: 'Ahmad Subagyo',
+          alamat: 'Perum GPA Ngijo Blok C-12, RT 06/RW 02',
+          no_hp: '081234567891',
+          status: 'Aktif'
+        },
+        {
+          id: 'ANG-002',
+          no_kk: '3507041508820002',
+          noKk: '3507041508820002',
+          nik: '3507041508820002',
+          nama: 'Bambang Supriyanto',
+          alamat: 'Perum GPA Ngijo Blok D-05, RT 07/RW 02',
+          no_hp: '081298765431',
+          status: 'Aktif'
+        },
+        {
+          id: 'ANG-003',
+          no_kk: '3507042011790003',
+          noKk: '3507042011790003',
+          nik: '3507042011790003',
+          nama: 'H. Wardjo',
+          alamat: 'Perum GPA Ngijo Blok A-01, RT 10/RW 02',
+          no_hp: '081345678901',
+          status: 'Aktif'
+        }
+      ];
+
+      this.keluarga = [
+        {
+          id: 'KLG-001',
+          id_anggota: 'ANG-001',
+          no_kk: '3507041205800001',
+          nik: '3507045506820002',
+          nama: 'Siti Rahayu',
+          alamat: 'Perum GPA Ngijo Blok C-12, RT 06/RW 02',
+          no_hp: '081234567892',
+          hubungan: 'Istri',
+          status: 'Hidup'
+        },
+        {
+          id: 'KLG-002',
+          id_anggota: 'ANG-001',
+          no_kk: '3507041205800001',
+          nik: '3507041809050003',
+          nama: 'Muhammad Rizki',
+          alamat: 'Perum GPA Ngijo Blok C-12, RT 06/RW 02',
+          no_hp: '081234567893',
+          hubungan: 'Anak',
+          status: 'Hidup'
+        },
+        {
+          id: 'KLG-003',
+          id_anggota: 'ANG-002',
+          no_kk: '3507041508820002',
+          nik: '3507046203850004',
+          nama: 'Dewi Lestari',
+          alamat: 'Perum GPA Ngijo Blok D-05, RT 07/RW 02',
+          no_hp: '081298765432',
+          hubungan: 'Istri',
+          status: 'Hidup'
+        }
+      ];
+
+      this.iuran = [
+        {
+          id_iuran: 'IRN-001',
+          tanggal: '2026-01-05',
+          id_anggota: 'ANG-001',
+          bulan_tahun: 'Januari 2026',
+          nominal: 50000,
+          keterangan: 'Iuran Wajib Jan 2026'
+        },
+        {
+          id_iuran: 'IRN-002',
+          tanggal: '2026-02-05',
+          id_anggota: 'ANG-001',
+          bulan_tahun: 'Februari 2026',
+          nominal: 50000,
+          keterangan: 'Iuran Wajib Feb 2026'
+        },
+        {
+          id_iuran: 'IRN-003',
+          tanggal: '2026-01-06',
+          id_anggota: 'ANG-002',
+          bulan_tahun: 'Januari 2026',
+          nominal: 50000,
+          keterangan: 'Iuran Wajib Jan 2026'
+        }
+      ];
+
+      this.bukukas = [
+        {
+          id_kas: 'KAS-001',
+          tanggal: '2026-01-05',
+          tipe: 'Masuk',
+          nominal: 50000,
+          keterangan: 'Iuran ANG-001 (Ahmad Subagyo) - Januari 2026'
+        },
+        {
+          id_kas: 'KAS-002',
+          tanggal: '2026-02-05',
+          tipe: 'Masuk',
+          nominal: 50000,
+          keterangan: 'Iuran ANG-001 (Ahmad Subagyo) - Februari 2026'
+        },
+        {
+          id_kas: 'KAS-003',
+          tanggal: '2026-01-06',
+          tipe: 'Masuk',
+          nominal: 50000,
+          keterangan: 'Iuran ANG-002 (Bambang Supriyanto) - Januari 2026'
+        }
+      ];
+      this.saveState();
+    }
+
+    // Non-destructive backward compatibility migration
+    this.anggota = this.anggota.map(a => ({
+      ...a,
+      no_kk: a.no_kk || a.noKk || a.nik,
+      noKk: a.no_kk || a.noKk || a.nik,
+      status: a.status || 'Aktif'
+    }));
+
+    this.keluarga = this.keluarga.map(k => {
+      const parent = this.anggota.find(a => a.id.toUpperCase() === k.id_anggota?.toUpperCase());
+      return {
+        ...k,
+        no_kk: k.no_kk || parent?.no_kk || parent?.nik,
+        alamat: k.alamat || parent?.alamat || 'Perum GPA Ngijo',
+        no_hp: k.no_hp || parent?.no_hp || '-',
+        status: k.status || 'Hidup',
+        hubungan: k.hubungan || 'Keluarga'
+      };
+    });
+
+    this.users = this.users.map(u => ({
+      ...u,
+      id: u.id || u.id_user || 'U001',
+      id_user: u.id_user || u.id || 'U001',
+      password_hash: u.password_hash || u.passwordHash || (u.password ? createPasswordHash(u.password, 'SIJAKA_SALT_' + u.username) : createPasswordHash('admin123', 'A1B2C3D4E5F67890')),
+      passwordHash: u.passwordHash || u.password_hash || (u.password ? createPasswordHash(u.password, 'SIJAKA_SALT_' + u.username) : createPasswordHash('admin123', 'A1B2C3D4E5F67890')),
+      role: u.role || 'Anggota',
+      status: u.status || 'Aktif'
+    }));
+
+    // Ensure all 5 roles accounts exist
+    INITIAL_USERS.forEach(initU => {
+      const idx = this.users.findIndex(u => u.username.toLowerCase() === initU.username.toLowerCase());
+      if (idx === -1) {
+        this.users.push({ ...initU });
+      } else {
+        this.users[idx] = { ...initU, ...this.users[idx], role: initU.role, password_hash: initU.password_hash, passwordHash: initU.passwordHash };
+      }
+    });
 
     // Load Audit Logs
     try {
@@ -291,7 +569,7 @@ export class SijakaEngine {
   // -------------------------------------------------------------------
   // SERVER-SIDE SESSION & PERMISSION ENGINE
   // -------------------------------------------------------------------
-  public createSession(userId: string, username: string, role: 'Admin' | 'Anggota'): UserSession {
+  public createSession(userId: string, username: string, role: SijakaRole = 'Anggota', id_anggota?: string): UserSession {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
 
@@ -300,6 +578,7 @@ export class SijakaEngine {
       user_id: userId,
       username: username,
       role: role,
+      id_anggota: id_anggota,
       created_at: now.toISOString(),
       expires_at: expiresAt.toISOString(),
       status: 'ACTIVE',
@@ -312,7 +591,7 @@ export class SijakaEngine {
 
     this.addAuditLog({
       userId: userId,
-      role: role,
+      role: role === 'Public' ? 'Anggota' : (role as any),
       action: 'LOGIN',
       resource: 'AUTH',
       resourceId: newSession.session_id,
@@ -380,20 +659,21 @@ export class SijakaEngine {
     return false;
   }
 
-  public hasPermission(role: 'Admin' | 'Anggota', permission: GranularPermission): boolean {
-    const granted = ROLE_PERMISSIONS[role] || [];
+  public hasPermission(role: SijakaRole | 'Admin' | 'Anggota', permission: GranularPermission): boolean {
+    const roleKey = role as SijakaRole;
+    const granted = ROLE_PERMISSIONS[roleKey] || (role === 'Admin' ? ROLE_PERMISSIONS.Admin : ROLE_PERMISSIONS.Anggota) || [];
     return granted.includes(permission);
   }
 
   public checkPermission(
-    role: 'Admin' | 'Anggota',
+    role: SijakaRole | 'Admin' | 'Anggota',
     permission: GranularPermission,
     callerUserId = 'ANON'
   ): { allowed: boolean; error?: string } {
     if (!this.hasPermission(role, permission)) {
       this.addAuditLog({
         userId: callerUserId,
-        role: role,
+        role: role === 'Public' ? 'Anggota' : (role as any),
         action: 'PERMISSION_DENIED',
         resource: permission,
         result: 'BLOCKED',
@@ -408,14 +688,21 @@ export class SijakaEngine {
   // -------------------------------------------------------------------
   // DATA OWNERSHIP & IDOR ENFORCEMENT
   // -------------------------------------------------------------------
-  public canAccessMember(callerRole: 'Admin' | 'Anggota', callerUserId: string, targetMemberId: string): boolean {
-    if (callerRole === 'Admin') return true;
-    // For Anggota: caller must match the target member ID
-    const isOwner = callerUserId.toUpperCase() === targetMemberId.toUpperCase();
+  public canAccessMember(callerRole: SijakaRole | 'Admin' | 'Anggota', callerUserId: string, targetMemberId: string): boolean {
+    // Admin, Super Admin, Ketua, and Pengurus have administrative read privileges
+    if (callerRole === 'Admin' || callerRole === 'Super Admin' || callerRole === 'Ketua' || callerRole === 'Pengurus') {
+      return true;
+    }
+
+    // For Anggota: match either the direct member ID or the linked id_anggota on User Account
+    const user = this.users.find(u => u.username.toLowerCase() === callerUserId.toLowerCase() || u.id_user === callerUserId || u.id === callerUserId);
+    const effectiveAnggotaId = user?.id_anggota || callerUserId;
+    const isOwner = effectiveAnggotaId.toUpperCase() === targetMemberId.toUpperCase();
+    
     if (!isOwner) {
       this.addAuditLog({
         userId: callerUserId,
-        role: callerRole,
+        role: callerRole === 'Public' ? 'Anggota' : (callerRole as any),
         action: 'IDOR_ACCESS_BLOCKED',
         resource: 'ANGGOTA',
         resourceId: targetMemberId,
@@ -1031,18 +1318,23 @@ export class SijakaEngine {
   }
 
   public submitAnggota(data: { 
+    no_kk?: string;
+    noKk?: string;
     nik: string; 
     nama: string; 
     alamat: string; 
     no_hp: string; 
     status?: 'Aktif' | 'Nonaktif';
-    keluargaAwal?: Array<{ nik: string; nama: string; hubungan: KeluargaMember['hubungan'] }>;
+    keluargaAwal?: Array<{ nik: string; nama: string; hubungan: KeluargaMember['hubungan']; no_hp?: string; alamat?: string }>;
     callerUserId?: string;
   }) {
     const nextNum = this.anggota.length + 1;
     const idAnggota = 'ANG-' + String(nextNum).padStart(3, '0');
+    const noKkVal = data.no_kk || data.noKk || data.nik;
     const newAnggota: Anggota = {
       id: idAnggota,
+      no_kk: noKkVal,
+      noKk: noKkVal,
       nik: data.nik,
       nama: data.nama,
       alamat: data.alamat,
@@ -1057,8 +1349,11 @@ export class SijakaEngine {
         this.keluarga.push({
           id: idKlg,
           id_anggota: idAnggota,
+          no_kk: noKkVal,
           nik: k.nik || '-',
           nama: k.nama,
+          alamat: k.alamat || data.alamat,
+          no_hp: k.no_hp || data.no_hp,
           hubungan: k.hubungan || 'Lainnya',
           status: 'Hidup'
         });
@@ -1082,19 +1377,26 @@ export class SijakaEngine {
 
   public submitKeluarga(data: {
     id_anggota: string;
+    no_kk?: string;
     nik: string;
     nama: string;
+    alamat?: string;
+    no_hp?: string;
     hubungan: KeluargaMember['hubungan'];
     status?: 'Hidup' | 'Meninggal';
     callerUserId?: string;
   }) {
+    const parent = this.anggota.find(a => a.id.toUpperCase() === data.id_anggota.toUpperCase());
     const nextNum = this.keluarga.length + 1;
     const idKeluarga = 'KLG-' + String(nextNum).padStart(3, '0');
     const newMember: KeluargaMember = {
       id: idKeluarga,
       id_anggota: data.id_anggota,
+      no_kk: data.no_kk || parent?.no_kk || parent?.nik || '-',
       nik: data.nik || '-',
       nama: data.nama,
+      alamat: data.alamat || parent?.alamat || 'Perum GPA Ngijo',
+      no_hp: data.no_hp || parent?.no_hp || '-',
       hubungan: data.hubungan || 'Lainnya',
       status: data.status || 'Hidup'
     };
@@ -1116,6 +1418,8 @@ export class SijakaEngine {
   }
 
   public updateAnggota(id: string, data: {
+    no_kk?: string;
+    noKk?: string;
     nik?: string;
     nama?: string;
     alamat?: string;
@@ -1125,6 +1429,14 @@ export class SijakaEngine {
   }) {
     const item = this.anggota.find(a => a.id.toUpperCase() === id.toUpperCase());
     if (item) {
+      if (data.no_kk !== undefined) {
+        item.no_kk = data.no_kk;
+        item.noKk = data.no_kk;
+      }
+      if (data.noKk !== undefined) {
+        item.no_kk = data.noKk;
+        item.noKk = data.noKk;
+      }
       if (data.nik !== undefined) item.nik = data.nik;
       if (data.nama !== undefined) item.nama = data.nama;
       if (data.alamat !== undefined) item.alamat = data.alamat;
@@ -1151,6 +1463,8 @@ export class SijakaEngine {
   public updateKeluarga(id: string, data: {
     nik?: string;
     nama?: string;
+    alamat?: string;
+    no_hp?: string;
     hubungan?: KeluargaMember['hubungan'];
     status?: 'Hidup' | 'Meninggal';
     callerUserId?: string;
@@ -1159,6 +1473,8 @@ export class SijakaEngine {
     if (item) {
       if (data.nik !== undefined) item.nik = data.nik;
       if (data.nama !== undefined) item.nama = data.nama;
+      if (data.alamat !== undefined) item.alamat = data.alamat;
+      if (data.no_hp !== undefined) item.no_hp = data.no_hp;
       if (data.hubungan !== undefined) item.hubungan = data.hubungan;
       if (data.status !== undefined) item.status = data.status;
 
@@ -1343,22 +1659,45 @@ export class SijakaEngine {
     return true;
   }
 
-  public submitUser(data: { id_user: string; username: string; password?: string; role?: 'Admin' | 'Anggota'; callerUserId?: string }) {
-    const existingIndex = this.users.findIndex(u => u.username.toLowerCase() === data.username.toLowerCase() || u.id_user === data.id_user);
+  public submitUser(data: {
+    id?: string;
+    id_user?: string;
+    username: string;
+    password?: string;
+    password_hash?: string;
+    role?: SijakaRole;
+    id_anggota?: string;
+    status?: 'Aktif' | 'Nonaktif';
+    nama?: string;
+    callerUserId?: string;
+  }) {
+    const userId = data.id || data.id_user || ('U' + String(this.users.length + 1).padStart(3, '0'));
+    const pHash = data.password_hash || (data.password ? createPasswordHash(data.password, 'SIJAKA_SALT_' + data.username) : createPasswordHash('user123', 'A1B2C3D4E5F67890'));
+    const userRole: SijakaRole = data.role || 'Anggota';
+    const userStatus = data.status || 'Aktif';
+
+    const existingIndex = this.users.findIndex(u => u.username.toLowerCase() === data.username.toLowerCase() || (u.id && u.id === userId) || (u.id_user && u.id_user === userId));
+    const userObj: UserAccount = {
+      id: userId,
+      id_user: userId,
+      username: data.username,
+      password_hash: pHash,
+      passwordHash: pHash,
+      role: userRole,
+      id_anggota: data.id_anggota,
+      status: userStatus,
+      nama: data.nama
+    };
+
     if (existingIndex >= 0) {
       this.users[existingIndex] = {
-        id_user: data.id_user,
-        username: data.username,
-        password: data.password || this.users[existingIndex].password || '123456',
-        role: data.role || 'Admin'
+        ...this.users[existingIndex],
+        ...userObj,
+        password_hash: data.password || data.password_hash ? pHash : (this.users[existingIndex].password_hash || this.users[existingIndex].passwordHash || pHash),
+        passwordHash: data.password || data.password_hash ? pHash : (this.users[existingIndex].password_hash || this.users[existingIndex].passwordHash || pHash)
       };
     } else {
-      this.users.push({
-        id_user: data.id_user,
-        username: data.username,
-        password: data.password || '123456',
-        role: data.role || 'Admin'
-      });
+      this.users.push(userObj);
     }
 
     this.addAuditLog({
@@ -1368,12 +1707,12 @@ export class SijakaEngine {
       resource: 'USERS',
       resourceId: data.username,
       result: 'SUCCESS',
-      details: `User account ${data.username} created/updated with role ${data.role || 'Admin'}`,
+      details: `User account ${data.username} (${userId}) saved with role ${userRole}`,
       severity: 'WARNING'
     });
 
     this.saveState();
-    return { success: true };
+    return { success: true, user: userObj };
   }
 
   public submitPelayanan(data: { ID_Laporan: string; Petugas: string; Dimandikan: 'Sudah' | 'Belum'; Dikafani: 'Sudah' | 'Belum'; Disalatkan: 'Sudah' | 'Belum'; Dimakamkan: 'Sudah' | 'Belum' }) {

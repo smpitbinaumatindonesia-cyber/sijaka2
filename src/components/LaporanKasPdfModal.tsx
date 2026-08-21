@@ -14,9 +14,9 @@ export const LaporanKasPdfModal: React.FC<LaporanKasPdfModalProps> = ({
   onClose,
   bukuKasList
 }) => {
-  if (!isOpen) return null;
-
   const [selectedPeriod, setSelectedPeriod] = useState<string>('Semua');
+
+  if (!isOpen) return null;
 
   // Filter list based on selected period
   const filteredList = bukuKasList.filter((item) => {

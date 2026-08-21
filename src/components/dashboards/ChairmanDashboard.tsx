@@ -53,23 +53,28 @@ export const ChairmanDashboard: React.FC<ChairmanDashboardProps> = ({
       {/* 1. EXECUTIVE WELCOME HERO (Calm, Confident & Decision-Oriented) */}
       <div className="rounded-3xl p-6 sm:p-8 bg-[#0B1428] border border-slate-800 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-          <div className="space-y-1">
-            <span className="text-xs text-slate-400 font-medium">Assalamu’alaikum warahmatullahi wabarakatuh</span>
-            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-sm sm:text-base text-slate-400 font-medium block">
+              Assalamu’alaikum warahmatullahi wabarakatuh
+            </span>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight leading-tight">
               Ringkasan Eksekutif: Bapak Ketua {chairmanName}
             </h1>
-            <p className="text-xs text-slate-400">
+            <div className="text-base sm:text-lg font-semibold text-purple-400">
+              Dashboard Pengawasan Ketua SIJAKA
+            </div>
+            <p className="text-xs sm:text-sm text-slate-400">
               Jamaah Tahlil Ar Rohman • RT 06 • RT 07 • RT 10 — Perum GPA Ngijo
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold self-start sm:self-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs sm:text-sm font-bold self-start sm:self-center shrink-0">
             <ShieldCheck className="w-4 h-4 text-purple-400" />
             <span>PENGAWASAN EKSEKUTIF</span>
           </div>
         </div>
 
-        <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-3xl">
+        <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
           Tinjauan strategis tata kelola kas dana kematian, cadangan likuiditas santunan, dan tren kepatuhan gotong royong warga jamaah.
         </p>
       </div>
@@ -78,64 +83,64 @@ export const ChairmanDashboard: React.FC<ChairmanDashboardProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         {/* KPI 1: Anggota */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Total Anggota</span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+            <span className="text-xs sm:text-sm font-semibold text-slate-400">Total Anggota</span>
+            <span className="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
               {activePct}% Aktif
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-white">{anggotaList.length} KK</div>
-            <p className="text-xs text-slate-400 mt-0.5">Kepala Keluarga RT 06, 07, 10</p>
+            <div className="text-2xl sm:text-3xl font-bold text-white">{anggotaList.length} KK</div>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Kepala Keluarga RT 06, 07, 10</p>
           </div>
         </div>
 
         {/* KPI 2: Iuran Masuk */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Iuran Masuk</span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+            <span className="text-xs sm:text-sm font-semibold text-slate-400">Iuran Masuk</span>
+            <span className="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
               +{metrics.totalContributionGrowthPct}% Thn Ini
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">
               {formatRupiah(summaryKas.masuk)}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">Total Realisasi Kas Masuk</p>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Total Realisasi Kas Masuk</p>
           </div>
         </div>
 
         {/* KPI 3: Santunan Tersalurkan */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Santunan Keluar</span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">
+            <span className="text-xs sm:text-sm font-semibold text-slate-400">Santunan Keluar</span>
+            <span className="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20">
               {kematianList.length} Musibah
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-rose-400 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-rose-400 font-mono">
               {formatRupiah(summaryKas.keluar)}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">Santunan Rp 2,5jt per Klaim</p>
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Santunan Rp 2,5jt per Klaim</p>
           </div>
         </div>
 
         {/* KPI 4: Cadangan Kas */}
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Cadangan Kas</span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+            <span className="text-xs sm:text-sm font-semibold text-slate-400">Cadangan Kas</span>
+            <span className="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
               Sangat Sehat
             </span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">
+            <div className="text-2xl sm:text-3xl font-bold text-blue-400 font-mono">
               {formatRupiah(summaryKas.saldo)}
             </div>
-            <p className="text-xs text-emerald-400 mt-0.5 font-medium">Daya Cadangan ± {claimsCovered} Santunan</p>
+            <p className="text-xs sm:text-sm text-emerald-400 mt-0.5 font-medium">Daya Cadangan ± {claimsCovered} Santunan</p>
           </div>
         </div>
 
@@ -145,39 +150,39 @@ export const ChairmanDashboard: React.FC<ChairmanDashboardProps> = ({
       <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-4">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <h2 className="text-base font-bold text-white">Catatan Pengawasan Tata Kelola</h2>
+            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+            <h2 className="text-base sm:text-lg font-bold text-white">Catatan Pengawasan Tata Kelola</h2>
           </div>
-          <span className="text-xs text-emerald-400 font-medium">Status Kas: Prima</span>
+          <span className="text-xs sm:text-sm text-emerald-400 font-medium">Status Kas: Prima</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
-            <div className="font-bold text-emerald-400 flex items-center gap-1.5">
+            <div className="font-bold text-emerald-400 text-xs sm:text-sm flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>Rasio Likuiditas Kas Santunan</span>
             </div>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
               Saldo kas saat ini ({formatRupiah(summaryKas.saldo)}) sangat mencukupi untuk memenuhi komitmen santunan kematian kapan pun terjadi musibah.
             </p>
           </div>
 
           <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
-            <div className="font-bold text-blue-400 flex items-center gap-1.5">
+            <div className="font-bold text-blue-400 text-xs sm:text-sm flex items-center gap-1.5">
               <Users className="w-4 h-4" />
               <span>Cakupan & Kepatuhan Warga</span>
             </div>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
               Sebanyak {anggotaList.length} KK telah terdata resmi dengan tingkat kepatuhan gotong royong iuran berjalan stabil dan konsisten.
             </p>
           </div>
 
           <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-1.5">
-            <div className="font-bold text-purple-400 flex items-center gap-1.5">
+            <div className="font-bold text-purple-400 text-xs sm:text-sm flex items-center gap-1.5">
               <FileText className="w-4 h-4" />
               <span>Kesiapan Laporan Warga</span>
             </div>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
               Semua mutasi kas masuk dan santunan keluar tercatat otomatis di Google Sheets dan siap dilaporkan dalam musyawarah warga.
             </p>
           </div>

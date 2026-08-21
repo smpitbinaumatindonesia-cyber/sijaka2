@@ -244,12 +244,12 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">ID_Anggota</th>
+                  <th className="px-4 py-3">ID</th>
+                  <th className="px-4 py-3">No KK</th>
                   <th className="px-4 py-3">NIK</th>
-                  <th className="px-4 py-3">Nama Lengkap</th>
+                  <th className="px-4 py-3">Nama</th>
                   <th className="px-4 py-3">Alamat</th>
-                  <th className="px-4 py-3">No_HP</th>
-                  <th className="px-4 py-3">Tanggungan / Keluarga</th>
+                  <th className="px-4 py-3">No. HP</th>
                   <th className="px-4 py-3">Status</th>
                 </tr>
               </thead>
@@ -257,20 +257,16 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
                 {data.anggota.map((row) => (
                   <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-4 py-3 font-semibold text-blue-600">{row.id}</td>
+                    <td className="px-4 py-3 text-slate-700" title={`No KK: ${row.no_kk || row.noKk || row.nik}`}>{maskNik(row.no_kk || row.noKk || row.nik)}</td>
                     <td className="px-4 py-3 text-slate-700" title={`NIK Asli: ${row.nik}`}>{maskNik(row.nik)}</td>
                     <td className="px-4 py-3 font-semibold font-sans text-slate-900">{row.nama}</td>
                     <td className="px-4 py-3 font-sans text-slate-700">{row.alamat}</td>
                     <td className="px-4 py-3 text-slate-700" title={`No. Asli: ${row.no_hp}`}>{maskPhone(row.no_hp)}</td>
                     <td className="px-4 py-3 font-sans">
-                      <span className="bg-purple-100 text-purple-800 text-[10px] font-semibold px-2 py-0.5 rounded border border-purple-200">
-                        {row.jumlah_keluarga || 0} Anggota Keluarga
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-sans">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         row.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200/60' : 'bg-rose-100 text-rose-800 border border-rose-200/60'
                       }`}>
-                        {row.status}
+                        {row.status || 'Aktif'}
                       </span>
                     </td>
                   </tr>
@@ -286,11 +282,11 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">ID_Keluarga</th>
-                  <th className="px-4 py-3">ID_Anggota (Kepala)</th>
+                  <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">NIK</th>
-                  <th className="px-4 py-3">Nama Anggota Keluarga</th>
-                  <th className="px-4 py-3">Hubungan</th>
+                  <th className="px-4 py-3">Nama</th>
+                  <th className="px-4 py-3">Alamat</th>
+                  <th className="px-4 py-3">No. HP</th>
                   <th className="px-4 py-3">Status</th>
                 </tr>
               </thead>
@@ -298,19 +294,22 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
                 {data.keluarga.map((row) => (
                   <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-4 py-3 font-semibold text-purple-600">{row.id}</td>
-                    <td className="px-4 py-3 text-blue-600 font-semibold">{row.id_anggota}</td>
                     <td className="px-4 py-3 text-slate-700" title={`NIK Asli: ${row.nik}`}>{maskNik(row.nik)}</td>
-                    <td className="px-4 py-3 font-semibold font-sans text-slate-900">{row.nama}</td>
-                    <td className="px-4 py-3 font-sans">
-                      <span className="bg-slate-100 text-slate-800 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-200">
-                        {row.hubungan}
-                      </span>
+                    <td className="px-4 py-3 font-semibold font-sans text-slate-900">
+                      {row.nama}
+                      {row.hubungan && (
+                        <span className="ml-2 text-[10px] font-normal text-slate-500">
+                          ({row.hubungan})
+                        </span>
+                      )}
                     </td>
+                    <td className="px-4 py-3 font-sans text-slate-700">{row.alamat || '-'}</td>
+                    <td className="px-4 py-3 text-slate-700" title={`No. Asli: ${row.no_hp || '-'}`}>{row.no_hp && row.no_hp !== '-' ? maskPhone(row.no_hp) : '-'}</td>
                     <td className="px-4 py-3 font-sans">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                         row.status === 'Hidup' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200/60' : 'bg-rose-100 text-rose-800 border border-rose-200/60'
                       }`}>
-                        {row.status}
+                        {row.status || 'Hidup'}
                       </span>
                     </td>
                   </tr>
@@ -435,25 +434,43 @@ export const DatabaseSimulator: React.FC<DatabaseSimulatorProps> = ({ userRole =
             <table className="w-full text-left text-xs">
               <thead className="bg-purple-50 text-purple-900 font-semibold border-b border-purple-200">
                 <tr>
-                  <th className="px-4 py-3">id_user</th>
+                  <th className="px-4 py-3">id</th>
                   <th className="px-4 py-3">username</th>
-                  <th className="px-4 py-3">password</th>
+                  <th className="px-4 py-3">password_hash</th>
                   <th className="px-4 py-3">role</th>
+                  <th className="px-4 py-3">id_anggota</th>
+                  <th className="px-4 py-3">status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 font-mono">
-                {((data as any).users || []).map((row: any) => (
-                  <tr key={row.id_user} className="hover:bg-purple-50/40 transition-colors">
-                    <td className="px-4 py-3 font-semibold text-purple-700">{row.id_user}</td>
-                    <td className="px-4 py-3 font-bold text-slate-900">{row.username}</td>
-                    <td className="px-4 py-3 text-slate-500">{row.password || '••••••'}</td>
-                    <td className="px-4 py-3 font-sans">
-                      <span className="bg-purple-100 text-purple-800 text-[10px] font-semibold px-2 py-0.5 rounded border border-purple-200">
-                        {row.role}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {((data as any).users || []).map((row: any) => {
+                  const hashDisplay = row.password_hash || row.passwordHash || (row.password ? '••••••••' : '••••••••');
+                  const truncatedHash = hashDisplay.length > 16 ? `${hashDisplay.slice(0, 8)}...${hashDisplay.slice(-6)}` : hashDisplay;
+                  return (
+                    <tr key={row.id || row.id_user} className="hover:bg-purple-50/40 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-purple-700">{row.id || row.id_user}</td>
+                      <td className="px-4 py-3 font-bold text-slate-900">{row.username}</td>
+                      <td className="px-4 py-3 text-slate-500 font-mono text-[11px]" title={`Full Hash: ${hashDisplay}`}>
+                        {truncatedHash}
+                      </td>
+                      <td className="px-4 py-3 font-sans">
+                        <span className="bg-purple-100 text-purple-800 text-[10px] font-semibold px-2 py-0.5 rounded border border-purple-200">
+                          {row.role}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-blue-600">
+                        {row.id_anggota || '-'}
+                      </td>
+                      <td className="px-4 py-3 font-sans">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          (row.status || 'Aktif') === 'Aktif' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200/60' : 'bg-rose-100 text-rose-800 border border-rose-200/60'
+                        }`}>
+                          {row.status || 'Aktif'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

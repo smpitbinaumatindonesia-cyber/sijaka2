@@ -77,35 +77,35 @@ export const PublicDashboard: React.FC<PublicDashboardProps> = ({
 
       {/* 2. STATISTIK PUBLIK UTAMA (Compact & Berjarak) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1">
-          <div className="text-xs text-slate-400 font-medium">Kepala Keluarga</div>
-          <div className="text-2xl sm:text-3xl font-black text-white">{totalMembersCount} KK</div>
-          <div className="text-[11px] text-emerald-400 font-semibold pt-0.5">Terdaftar Aktif</div>
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1.5">
+          <div className="text-xs sm:text-sm text-slate-400 font-semibold">Kepala Keluarga</div>
+          <div className="text-2xl sm:text-3xl font-bold text-white">{totalMembersCount} KK</div>
+          <div className="text-xs text-emerald-400 font-semibold pt-0.5">Terdaftar Aktif</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1">
-          <div className="text-xs text-slate-400 font-medium">Warga Terlindungi</div>
-          <div className="text-2xl sm:text-3xl font-black text-blue-400">{totalProtectedSouls} Jiwa</div>
-          <div className="text-[11px] text-slate-400 font-semibold pt-0.5">Anggota & Keluarga</div>
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1.5">
+          <div className="text-xs sm:text-sm text-slate-400 font-semibold">Warga Terlindungi</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-400">{totalProtectedSouls} Jiwa</div>
+          <div className="text-xs text-slate-400 font-semibold pt-0.5">Anggota & Keluarga</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1">
-          <div className="text-xs text-slate-400 font-medium">Nilai Santunan</div>
-          <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">Rp 2,5 Juta</div>
-          <div className="text-[11px] text-emerald-400 font-semibold pt-0.5">Tetap per Musibah</div>
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1.5">
+          <div className="text-xs sm:text-sm text-slate-400 font-semibold">Nilai Santunan</div>
+          <div className="text-2xl sm:text-3xl font-bold text-emerald-400 font-mono">Rp 2,5 Juta</div>
+          <div className="text-xs text-emerald-400 font-semibold pt-0.5">Tetap per Musibah</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1">
-          <div className="text-xs text-slate-400 font-medium">Respon Layanan</div>
-          <div className="text-2xl sm:text-3xl font-black text-amber-400">Siap 24 Jam</div>
-          <div className="text-[11px] text-slate-400 font-semibold pt-0.5">Tim Rukun Kematian</div>
+        <div className="p-5 sm:p-6 rounded-2xl bg-[#0B1428] border border-slate-800 shadow-sm space-y-1.5">
+          <div className="text-xs sm:text-sm text-slate-400 font-semibold">Respon Layanan</div>
+          <div className="text-2xl sm:text-3xl font-bold text-amber-400">Siap 24 Jam</div>
+          <div className="text-xs text-slate-400 font-semibold pt-0.5">Tim Rukun Kematian</div>
         </div>
       </div>
 
       {/* 3. PROGRAM & MANFAAT KEPESERTAAN */}
       <div className="space-y-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Manfaat & Program Kepesertaan</h2>
+          <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">Manfaat & Program Kepesertaan</h2>
           <p className="text-xs sm:text-sm text-slate-400">Fasilitas pelayanan dan perlindungan duka bagi warga jamaah</p>
         </div>
 
@@ -115,8 +115,8 @@ export const PublicDashboard: React.FC<PublicDashboardProps> = ({
               <DollarSign className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-sm">Santunan Rp 2.500.000</h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-sm sm:text-base">Santunan Rp 2.500.000</h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
                 Diserahkan langsung secara tunai kepada ahli waris saat menghadapi musibah duka.
               </p>
             </div>
@@ -127,8 +127,8 @@ export const PublicDashboard: React.FC<PublicDashboardProps> = ({
               <Heart className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-sm">Pemulasaraan Lengkap</h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-sm sm:text-base">Pemulasaraan Lengkap</h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
                 Bantuan kain kafan, perlengkapan, memandikan, mengkafani, hingga pemakaman.
               </p>
             </div>
@@ -139,8 +139,8 @@ export const PublicDashboard: React.FC<PublicDashboardProps> = ({
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-sm">Perlindungan 1 KK</h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-sm sm:text-base">Perlindungan 1 KK</h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
                 Iuran per Kepala Keluarga mencakup pasangan, anak, dan tanggungan dalam KK.
               </p>
             </div>
@@ -151,8 +151,8 @@ export const PublicDashboard: React.FC<PublicDashboardProps> = ({
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-sm">Kas Transparan</h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <h3 className="font-bold text-white text-sm sm:text-base">Kas Transparan</h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
                 Pencatatan kas dan laporan keuangan terbuka untuk seluruh jamaah RT 06, 07, & 10.
               </p>
             </div>
@@ -163,47 +163,47 @@ export const PublicDashboard: React.FC<PublicDashboardProps> = ({
       {/* 4. CARA KERJA SIJAKA (Alur Sederhana & Bersih) */}
       <div className="space-y-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">Cara Kerja Pelayanan</h2>
+          <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">Cara Kerja Pelayanan</h2>
           <p className="text-xs sm:text-sm text-slate-400">4 langkah alur tertib jaminan kematian jamaah</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2.5">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center">
               1
             </div>
-            <h3 className="font-bold text-white text-sm">Pendaftaran KK</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-bold text-white text-sm sm:text-base">Pendaftaran KK</h3>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               Kepala keluarga mendaftarkan data KK dan susunan anggota keluarga ke pengurus.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
               2
             </div>
-            <h3 className="font-bold text-white text-sm">Iuran Gotong Royong</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-bold text-white text-sm sm:text-base">Iuran Gotong Royong</h3>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               Penyetoran iuran kas berkala untuk menjaga ketersediaan dana cadangan santunan.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2.5">
-            <div className="w-7 h-7 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center">
               3
             </div>
-            <h3 className="font-bold text-white text-sm">Pelaporan Musibah</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-bold text-white text-sm sm:text-base">Pelaporan Musibah</h3>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               Keluarga melapor saat terjadi kedukaan melalui portal sistem atau kontak WhatsApp.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-[#0B1428] border border-slate-800 space-y-2.5">
-            <div className="w-7 h-7 rounded-lg bg-purple-600 text-white font-black text-xs flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-purple-600 text-white font-bold text-xs flex items-center justify-center">
               4
             </div>
-            <h3 className="font-bold text-white text-sm">Penyaluran Santunan</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="font-bold text-white text-sm sm:text-base">Penyaluran Santunan</h3>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
               Pengurus menyalurkan santunan Rp 2,5jt dan mendampingi proses pemulasaraan.
             </p>
           </div>

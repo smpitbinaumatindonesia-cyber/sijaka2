@@ -39,18 +39,18 @@ export const Header: React.FC<HeaderProps> = ({
   const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
   const [tempUrlInput, setTempUrlInput] = useState('');
 
-  // Strictly hide technical admin navigation ribbon for Anggota, Pengurus, and Ketua
-  const isAdmin = userRole === 'Admin' || userRole === 'Super Admin';
-  if (!isAdmin) {
-    return null;
-  }
-
   useEffect(() => {
     const savedLogo = localStorage.getItem('sijaka_custom_logo');
     if (savedLogo) {
       setLogoUrl(savedLogo);
     }
   }, []);
+
+  // Strictly hide technical admin navigation ribbon for Anggota, Pengurus, and Ketua
+  const isAdmin = userRole === 'Admin' || userRole === 'Super Admin';
+  if (!isAdmin) {
+    return null;
+  }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
